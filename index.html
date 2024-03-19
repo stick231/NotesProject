@@ -1,21 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="ru">
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="styles.css" rel="styles">
-    <title>Таймер</title>
-</head>
-<body>
-    <div id="timer">
-        <div class="info">
-            Таймер
-        </div>
-        <div class="countdown">
-            
-        </div>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&display=swap" rel="stylesheet">
+    <title>Заметки</title>
+  </head>
+  <body>
+    <div id="container">
+      <h1>Создайте заметку</h1>
+      <p>Наше приложение заметок обещает удобный и интуитивно понятный интерфейс, возможность синхронизации данных на всех устройствах и безопасное хранение информации. Писать заметки в нем легко и удобно - попробуйте сами!</p>
+      <form id="noteForm">
+        <label>Ваш заголовок <input id="TitleInp" type="text"  title="Это ваш заголовок"></label><!-- вместо required, ошибку -->
+        <label id="label_2">Ваша заметка <textarea  id="NoteInp" cols="30" rows="3"  title="Это ваша заметка"></textarea></label>
+        <button type="submit" id="submitBut">Создать</button>
+      </form>
     </div>
-
-    <script src="Index.js"></script>  
-</body>
+    <div id="noteList"></div>
+    <script src="script.js"></script>
+  </body>
 </html>
