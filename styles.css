@@ -1,31 +1,161 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital@1&family=Roboto:wght@700&display=swap');
-
-body{
-    font-family: 'Noto Sans', sans-serif;;
-    margin: 0;
+*{
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    font-size: 40px;
+    margin: 0;
 }
 
-#timer{
-    width: 1000px;
-    height: 500px;
+body{ 
+    background-color: #992667;
+    font-family: "Unbounded", sans-serif;
+}
+
+#container{
+    width: 75%;
+    height: 25vh;
+    border: #06276F solid 1px;
+    margin: 25px auto;
+    background-color: #BF3030;
     border-radius: 10px;
+    color: white;
+}
+
+#container h1{
     text-align: center;
-    box-shadow: black 5px 5px 5px 5px;
+    letter-spacing: 10px;
+    margin-top: 10px;
 }
-.countdown{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    font-size: 100px;
+
+#container p {
+    font-size: 15px;
+    text-align: center;
+    letter-spacing: 4px;
+    margin-top: 0.5%;
 }
-.input{
-    font-size: 40px;
-    width: 70px;
+
+#container input{
+    height: 30px;
+    max-height: 10%;
+    margin-top: 1%;
 }
+
+#container input, textarea{
+    margin-left: 3%;
+    width: 40%;
+    background-color: #5F2580;
+    border: none;
+    font-family: "Unbounded", sans-serif;
+    border-radius: 6px;
+    resize: none;
+}
+
+#container textarea{
+    margin-top: 3%;
+}
+
+input:active, :hover, :focus {
+    outline: 0;
+    outline-offset: 0;
+}
+
+#container label{
+    margin-left: 5%;
+    display: inline-block;
+    font-size: 23px;
+    margin-top: 2%;
+}
+
+#container button{
+    height: 60px;
+    width: 140px;
+    font-family: "Unbounded", sans-serif;
+    margin-left: 10%;
+    background-color: #06276F;
+    border: none;
+}
+
+#container button:active{
+    background-color: #5F2580;
+}
+
+
+#noteList div{
+    height: 200px;
+    width: 500px;
+    background-color: #BF3030;
+    float: left;
+    margin: 50px;
+    border-radius: 10px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-all;
+    border: #06276F solid 1px;
+    overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+}
+
+
+#noteList span{
+  position: relative;
+  float: right;
+  font-size: 30px;
+}
+
+#noteList span:hover{
+  cursor: pointer;
+}
+
+#noteList h1{
+  text-align: center;
+}
+
+#noteList h3{
+  margin-left: 7%;
+  margin-bottom: 5px;
+}
+
+#noteList p{
+  margin-left: 4%;
+  margin-bottom: 5px;
+}
+
+@media (width < 1700px) {
+    #container {
+       height: 40vh;
+    } 
+    #noteList div{
+        height: 200px;
+        width: 400px;
+    }
+      #container button{
+    margin-left: 30%;
+    margin-top: 3%;
+    width: 40%;
+  }
+}
+
+@media (width < 700px) {
+  body{
+    width: 400px;
+  }
+  #container {
+    height: 55vh;
+    width: 50vh;
+  }
+  #container h1{
+    font-size: 22px;
+  }
+  #container p{
+    font-size: 10px;
+  }
+  #container button{
+    margin-left: 30%;
+    margin-top: 3%;
+    width: 40%;
+  }
+  #noteList div{
+    margin: 10px;
+    width: 50vh;
+  }
+} 
