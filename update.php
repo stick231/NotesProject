@@ -26,4 +26,8 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
     $stmt->close();
 }
+else{
+    echo "Недопустимый метод запроса";
+    exit;
+}
 ?>

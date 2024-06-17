@@ -1,6 +1,6 @@
 <?php
 require_once "db.php";
-date_default_timezone_set('Europe/Moscow'); // Установите нужный часовой пояс
+date_default_timezone_set('Europe/Moscow');
 
 if ($_SERVER["REQUEST_METHOD"] === 'POST') {
     $title = $_POST["title"];
