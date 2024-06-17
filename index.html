@@ -14,8 +14,8 @@
       <h1>Создайте заметку</h1>
       <p>Наше приложение заметок обещает удобный и интуитивно понятный интерфейс, возможность синхронизации данных на всех устройствах и безопасное хранение информации. Писать заметки в нем легко и удобно - попробуйте сами!</p>
       <form id="noteForm">
-        <label>Ваш заголовок <input id="TitleInp" type="text"  title="Это ваш заголовок"></label><!-- вместо required, ошибку -->
-        <label id="label_2">Ваша заметка <textarea  id="NoteInp" cols="30" rows="3"  title="Это ваша заметка"></textarea></label>
+        <label>Ваш заголовок <input id="TitleInp" type="text" name="title"  title="Это ваш заголовок"></label><!-- вместо required, ошибку -->
+        <label id="label_2">Ваша заметка <textarea  id="NoteInp" name="content" cols="30" rows="3"  title="Это ваша заметка"></textarea></label>
         <button type="submit" id="submitBut">Создать</button>
       </form>
     </div>
