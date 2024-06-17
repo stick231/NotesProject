@@ -1,128 +1,207 @@
-document.getElementById('noteForm').addEventListener('submit', (event)=>{
-    event.preventDefault();
-
-    let title = document.getElementById('TitleInp').value;
-    let content = document.getElementById('NoteInp').value;
-    let timeStr = new Date().toLocaleTimeString();
-    let time = `Время создания блока: ${timeStr}`
-
-    if(title.trim() === "" || content.trim() === ""){
-        alert("Введите заголовок и заметку корректно");
-        return;
-    }
-
-    addNoteToList(title, content, time);
+window.addEventListener('DOMContentLoaded', () => {
+    readNote();
 });
 
-let count = 1;
+let noteId;
+let isEditing = true;
 
-function addNoteToList(title, content, time) {
-    if (count > 6){
-        alert("Заметки закончились");
-    }
-    else {
-        let noteList = document.getElementById('noteList');
-
-        let noteDiv = document.createElement('div');
-        noteDiv.classList.add('note');
-
-        let dateCreation = document.createElement('p');
-        dateCreation.classList.add('dateElement');
-        dateCreation.textContent = time
-
-        let noteListdel = document.createElement('span');
-        noteListdel.classList.add("noteListdel");
-        noteListdel.textContent = '🗑️';
-
-        let changeButtonNotes = document.createElement('span');
-        changeButtonNotes.classList.add("changeButton");
-        changeButtonNotes.textContent = "✏️";
-
-        let titleNumElement = document.createElement('h1');
-        titleNumElement.classList.add("titleH1");
-        titleNumElement.textContent = `Заметка №${count++};`
-
-        let titleElement = document.createElement('h3');
-        titleElement.classList.add('h3Note');
-        titleElement.textContent = title;
-
-        let contentElement = document.createElement('p');
-        contentElement.classList.add('paragraphNote');
-        contentElement.textContent = content;
-
-        noteDiv.appendChild(noteListdel);
-        noteDiv.appendChild(changeButtonNotes)
-        noteDiv.appendChild(titleNumElement);
-        noteDiv.appendChild(titleElement);
-        noteDiv.appendChild(contentElement);
-        noteDiv.appendChild(dateCreation);
-
-        noteList.appendChild(noteDiv);
-
-        noteListdel.addEventListener("click", function(){
-            count--;
-            noteDiv.remove();
-            let notes = JSON.parse(localStorage.getItem('notes')) || [];
-
-            let indexToRemove = notes.findIndex(note => note.title === title && note.content === content);
-            if(indexToRemove > -1){
-                notes.splice(indexToRemove, 1);
-                localStorage.setItem('notes', JSON.stringify(notes));
-            }
-        });
-
-        changeButtonNotes.addEventListener('click', () =>{
-            document.getElementById('TitleInp').value = title;//""
-            document.getElementById('NoteInp').value = content;
-
-            let textarea = document.getElementsByTagName("textarea")[0];
-            let input = document.getElementById('TitleInp');
-
-            textarea.setAttribute('placeholder','Введите изменения');
-            input.setAttribute('placeholder','Введите изменения');
-
-            document.getElementById('submitBut').innerHTML = "Изменить";
-
-
-            document.getElementById('submitBut').addEventListener('click', () => {
-                let editTime = new Date().toLocaleTimeString();
-                time = `Время редактирования: ${editTime}`;
-                if(input.value === "" || textarea.value === ""){
-                    return;
-                }
-                else {
-                    document.getElementById("submitBut").type = "button";
-                    let notes = JSON.parse(localStorage.getItem('notes')) || [];
-                    notes = notes.map(note => {
-                        if (note.title === title && note.content === content) {
-                            return { title: input.value, content: textarea.value, time: time}
-                        } else {
-                            return note;
-                        }
-                    });
-                    localStorage.setItem('notes', JSON.stringify(notes));
-                    location.reload();
-                }
-            });
-        });
-        let note = { title: title, content: content, time: time };
-        let notes = JSON.parse(localStorage.getItem('notes')) || [];
-        let isDuplicate = notes.some(note => note.title === title && note.content === content);
-        if(!isDuplicate){
-            notes.push(note);
-            localStorage.setItem('notes', JSON.stringify(notes));
+document.getElementById('noteForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (isEditing) {
+        if (checkInp()) {
+            createNote();
+            noteId = null;
+            console.log(isEditing);
+        }
+    } else {
+        if (checkInp()) {
+            updateNote(noteId);
+            isEditing = true;
+            resetForm();
+            console.log(isEditing);
         }
     }
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-    let dateElement = document.getElementsByClassName('.dateElement')
-    dateElement.innerHtml = ""
-    let notes = JSON.parse(localStorage.getItem('notes')) || [];
-    notes.forEach(note => {
-        addNoteToList(note.title, note.content, note.time);
-    });
 });
 
+function checkInp() {
+    let title = document.getElementById('TitleInp').value;
+    let content = document.getElementById('NoteInp').value;
 
+    if (title.trim() === "" || content.trim() === "") {
+        alert("Заголовок и содержимое не могут быть пустыми");
+        return false;
+    }
+    return true;
+}
 
+function createNote() {
+    const Form = document.getElementById("noteForm");
+    const formData = new FormData(Form);
+
+    fetch('create.php', {
+        method: "POST",
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка сети: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        if (data.success) {
+            console.log(data.message);
+            alert(data.message);
+            readNote();
+            resetForm();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.log("Произошла ошибка: " + error.message);
+        alert("Произошла ошибка: " + error.message);
+    });
+}
+
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains("noteListdel")) {
+        const noteId = event.target.dataset.noteId;
+        console.log(noteId);
+        deleteNote(noteId);
+    } else if (event.target.classList.contains('changeButton')) {
+        const noteId = event.target.dataset.noteId;
+        editNoteForm(noteId);
+        isEditing = false;
+        console.log(isEditing);
+    }
+});
+
+function deleteNote(idNote) {
+    fetch("delete.php", {
+        method: "POST",
+        body: `id=${idNote}`,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            readNote();
+            alert(data.message);
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.log("Произошла ошибка: " + error.message);
+    });
+}
+
+function editNoteForm(idNote) {
+    fetch(`read.php?id=${idNote}`, {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        const titleInp = document.getElementById("TitleInp");
+        const contentInp = document.getElementById("NoteInp");
+
+        titleInp.value = data.title;
+        contentInp.value = data.content;
+
+        const buttonSubmit = document.getElementById("submitBut");
+        buttonSubmit.textContent = "Сохранить";
+        noteId = idNote;
+    });
+}
+
+function updateNote(idNote) {
+    const Form = document.getElementById("noteForm");
+    const formData = new FormData(Form);
+    formData.append('id', idNote);
+
+    fetch(`update.php`, {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            readNote();
+            resetForm();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
+function resetForm() {
+    const titleInp = document.getElementById("TitleInp");
+    const contentInp = document.getElementById("NoteInp");
+    const buttonSubmit = document.getElementById("submitBut");
+
+    titleInp.value = "";
+    contentInp.value = "";
+    buttonSubmit.textContent = "Создать";
+}
+
+function readNote() {
+    fetch("read.php", {
+        method: "GET"
+    })
+    .then(response => response.json())
+    .then(data => {
+        const noteList = document.getElementById("noteList");
+        noteList.innerHTML = "";
+
+        console.log(data);
+        data.forEach(note => {
+            let noteList = document.getElementById('noteList');
+
+            let noteDiv = document.createElement('div');
+            noteDiv.classList.add('note');
+
+            let dateCreation = document.createElement('p');
+            dateCreation.classList.add('dateElement');
+            dateCreation.textContent = note.timeCreate;
+
+            let noteListdel = document.createElement('span');
+            noteListdel.classList.add("noteListdel");
+            noteListdel.textContent = '🗑️';
+            noteListdel.setAttribute("data-note-id", note.id);
+
+            let changeButtonNotes = document.createElement('span');
+            changeButtonNotes.classList.add("changeButton");
+            changeButtonNotes.textContent = "✏️";
+            changeButtonNotes.setAttribute("data-note-id", note.id);
+
+            let titleElement = document.createElement('h3');
+            titleElement.classList.add('h3Note');
+            titleElement.textContent = note.title;
+
+            let contentElement = document.createElement('p');
+            contentElement.classList.add('paragraphNote');
+            contentElement.textContent = note.content;
+
+            noteDiv.appendChild(noteListdel);
+            noteDiv.appendChild(changeButtonNotes);
+            noteDiv.appendChild(titleElement);
+            noteDiv.appendChild(contentElement);
+            noteDiv.appendChild(dateCreation);
+
+            noteList.appendChild(noteDiv);
+        });
+    })
+    .catch(error => {
+        console.log("Произошла ошибка: " + error.message);
+        alert("Произошла ошибка: " + error.message);
+    });
+}
