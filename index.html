@@ -3,23 +3,34 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <title>Заметки</title>
   </head>
   <body>
+    <header>
+      <h1>Заметки</h1>
+      <input type="text" id="search" placeholder="Поиск">
+  </header>
+  <div class="sidebar">
+      <div class="nav-icons">
+          <span>🏠</span>
+          <span>📝</span>
+          <span>🔍</span>
+      </div>
+  </div>    
     <div id="container">
-      <h1>Создайте заметку</h1>
-      <p>Наше приложение заметок обещает удобный и интуитивно понятный интерфейс, возможность синхронизации данных на всех устройствах и безопасное хранение информации. Писать заметки в нем легко и удобно - попробуйте сами!</p>
+      <main>
       <form id="noteForm">
-        <label>Ваш заголовок <input id="TitleInp" type="text" name="title"  title="Это ваш заголовок"></label><!-- вместо required, ошибку -->
-        <label id="label_2">Ваша заметка <textarea  id="NoteInp" name="content" cols="30" rows="3"  title="Это ваша заметка"></textarea></label>
+        <input id="TitleInp" type="text" name="title" placeholder="Введите заголовок..."  title="Это ваш заголовок">
+        <textarea  id="NoteInp" name="content" cols="30" rows="3" placeholder="Заметка..." title="Это ваша заметка"></textarea>
         <button type="submit" id="submitBut">Создать</button>
       </form>
-    </div>
-    <div id="noteList"></div>
+    </main>
+    </div>  
+    <section>
+        <div id="noteList"></div>
+  </section>
     <script src="script.js"></script>
   </body>
 </html>

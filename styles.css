@@ -1,179 +1,198 @@
-*{
-  padding: 0;
-  margin: 0;
+body {
+    margin: 0;
+    font-family: "Comfortaa", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    display: grid;
+    grid-template-areas: 
+        "header header"
+        "sidebar main"
+        "sidebar section";
+    grid-template-rows: auto auto 1fr;
+    grid-template-columns: auto 1fr;
+    height: 100vh;
+    max-width: 100%;
+    overflow-x: hidden;
+    background-color: #121212;
 }
 
-body{ 
-  background-color: #992667;
-  font-family: "Unbounded", sans-serif;
+header {
+    grid-area: header;
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-#container{
-  width: 75%;
-  height: 25vh;
-  border: #06276F solid 1px;
-  margin: 25px auto;
-  background-color: #BF3030;
-  border-radius: 10px;
-  color: white;
+h1 {
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+    margin-right: -17.5%;
+    letter-spacing: 4px;
 }
 
-#container h1{
-  text-align: center;
-  letter-spacing: 10px;
-  margin-top: 10px;
+#search {
+    margin-right: 10px;
+    height: 35px;
+    width: 200px;
+    background-color: rgb(56, 54, 54);
+    outline: 0;
+    border-radius: 10px;
+    color: #FFFFFF;
+    border: none;
+    border: 1px solid rgb(48, 45, 45)
 }
 
-#container p {
-  font-size: 15px;
-  text-align: center;
-  letter-spacing: 4px;
-  margin-top: 0.5%;
+#search:focus {
+    border: 1px solid rgb(148, 139, 139);
 }
 
-#container input{
-  height: 30px;
-  max-height: 10%;
-  margin-top: 1%;
-}
-
-#TitleInp, #NoteInp{
-  margin-left: 3%;
-  width: 40%;
-  background-color: #5F2580;
-  border: none;
-  font-family: "Unbounded", sans-serif;
-  border-radius: 6px;
-  resize: none;
-}
-
-.h3Note, .paragraphNote{
-border: none;
-resize: none;
-background-color: #BF3030;
-font-size: 30px;
-font-family: "Unbounded", sans-serif;
-}
-
-.paragraphNote{
-font-size: 23px;
+input, textarea, button{
+    font-family: "Comfortaa", sans-serif;
 }
 
 input:active, :hover, :focus {
-  outline: 0;
-  outline-offset: 0;
+    outline: 0;
+    outline-offset: 0;
 }
 
-#container label{
-  margin-left: 5%;
-  display: inline-block;
-  font-size: 23px;
-  margin-top: 2%;
+.sidebar {
+    grid-area: sidebar;
+    background-color: #333;
+    color: white;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
 }
 
-#container button{
-  height: 60px;
-  width: 140px;
-  font-family: "Unbounded", sans-serif;
-  margin-left: 10%;
-  background-color: #06276F;
-  border: none;
-  border-radius: 15px;
+.nav-icons {
+    margin-bottom: 16px;
 }
 
-#container button:active{
-  background-color: #5F2580;
+main {
+    grid-area: main;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 10px 0 50px;
+}
+
+main input, main textarea {
+    width: 100%; 
+    max-width: 400px;
+    padding: 8px 0;
+    border: none;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-weight: 400;
+    background-color: #121212;
+    color: white;
+    resize: none;
+}
+
+#noteForm{
+    border: 2px solid #1E1E1E;
+    width: 450px;
+    height: auto;
+    padding: 18px;
+    border-radius: 15px;
 }
 
 
-#noteList div{
-  height: 200px;
-  width: 500px;
-  background-color: #BF3030;
-  float: left;
-  margin: 50px;
-  border-radius: 10px;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-all;
-  border: #06276F solid 1px;
-  overflow-y: scroll;
+button {
+    background-color: #1E1E1E;
+    width: 240px;
+    height: 45px;
+    margin: 0 auto;
+    border-radius: 5px;
+    border: none;
+    font-size: 20px;
+    color: white;
+    letter-spacing: 3px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: rebeccapurple;
+}
+
+section {
+    grid-area: section;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-auto-rows: minmax(150px, auto);
+    gap: 16px;
+    padding: 16px;
+}
+
+#noteList {
+    display: contents; 
+    gap: 20px; 
+    padding: 20px;
+}
+
+.note {
+    color: #FFFFFF;
+    background-color: #1E1E1E;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    word-wrap: break-word;
+    min-width: 240px;
+    min-height: 250px;
+    max-height: 300px;
+    overflow-wrap: break-word;
+    word-break: break-all;
+    overflow-y: scroll;
 }
 
 ::-webkit-scrollbar {
-width: 0;
-}
-
-.dateElement{
-font-size: 10px;
-text-align: end;
-margin-right: 10px;
-}
-
-.changeButton{
-display: inline-block;
-}
-
-#noteList span{
-position: relative;
-float: right;
-font-size: 30px;
-}
-
-#noteList span:hover{
-cursor: pointer;
-}
-
-#noteList h1{
-text-align: center;
-}
-
-#noteList h3{
-margin-left: 7%;
-margin-bottom: 5px;
-}
-
-#noteList p{
-margin-left: 4%;
-margin-bottom: 5px;
-}
-
-@media (width < 1700px) {
-  #container {
-     height: 40vh;
-  } 
-  #noteList div{
-      height: 200px;
-      width: 400px;
+    width: 0;
   }
-    #container button{
-  margin-left: 30%;
-  margin-top: 3%;
-  width: 40%;
-}
+
+.note:hover {
+    transform: scale(1.05);
+    animation: scrollHint 1s infinite; 
+    background-color: #2A2A2A;
 }
 
-@media (width < 700px) {
-body{
-  width: 400px;
+.note::-webkit-scrollbar-thumb {
+    background: transparent;
 }
-#container {
-  height: 55vh;
-  width: 50vh;
+
+.note::-webkit-scrollbar-track {
+    background: transparent;
 }
-#container h1{
-  font-size: 22px;
+
+@keyframes scrollHint {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+    100% { transform: translateY(0); }
 }
-#container p{
-  font-size: 10px;
+
+.noteListdel, .changeButton {
+    cursor: pointer;
+    margin-right: 8px;
 }
-#container button{
-  margin-left: 30%;
-  margin-top: 3%;
-  width: 40%;
+
+.dateElement {
+    font-size: 0.8em;
+    color: #666;
 }
-#noteList div{
-  margin: 10px;
-  width: 50vh;
+
+.h3Note {
+    margin: 0 0 8px 0;
 }
+
+.paragraphNote {
+    margin: 0;
+}
+
+#TitleInp, #submitBut {
+    display: none;
 }

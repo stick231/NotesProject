@@ -1,8 +1,8 @@
 <?php
 require_once "db.php";
 
-if($_SERVER["REQUEST_METHOD"] === "GET"){
-    if(isset($_GET["id"])){
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if (isset($_GET["id"])) {
         $id = $_GET['id'];
 
         $query = "SELECT * FROM note WHERE id = ?";
@@ -11,7 +11,7 @@ if($_SERVER["REQUEST_METHOD"] === "GET"){
 
         $stmt->execute();
         $result = $stmt->get_result();
-    
+
         if ($result->num_rows > 0) {
             $note = $result->fetch_assoc();
             echo json_encode($note);
@@ -24,6 +24,14 @@ if($_SERVER["REQUEST_METHOD"] === "GET"){
 
     $sql = "SELECT * FROM note";
 
+    if (isset($_GET["search"])) {
+        $search = $mysqli->real_escape_string($_GET["search"]);
+
+        $sql .= " WHERE title LIKE '%$search%' 
+        OR content LIKE '%$search%'
+        OR timeCreate LIKE '%$search%'";
+    }
+
     $result = $mysqli->query($sql);
 
     if (!$result) {
@@ -31,14 +39,14 @@ if($_SERVER["REQUEST_METHOD"] === "GET"){
         exit;
     }
 
-    $devices = array();
+    $note = array();
     while ($row = $result->fetch_assoc()) {
-        $devices[] = $row;
+        $note[] = $row;
     }
 
-    echo json_encode($devices);
-}
-else{
+
+    echo json_encode($note);
+} else {
     echo "Недопустимый метод запроса";
     exit;
 }

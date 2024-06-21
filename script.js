@@ -5,20 +5,18 @@ window.addEventListener('DOMContentLoaded', () => {
 let noteId;
 let isEditing = true;
 
-document.getElementById('noteForm').addEventListener('submit', (event) => {
+document.getElementById('submitBut').addEventListener('click', (event) => {
     event.preventDefault();
     if (isEditing) {
         if (checkInp()) {
             createNote();
             noteId = null;
-            console.log(isEditing);
         }
     } else {
         if (checkInp()) {
             updateNote(noteId);
             isEditing = true;
             resetForm();
-            console.log(isEditing);
         }
     }
 });
@@ -49,9 +47,7 @@ function createNote() {
         return response.json();
     })
     .then(data => {
-        console.log(data);
         if (data.success) {
-            console.log(data.message);
             alert(data.message);
             readNote();
             resetForm();
@@ -68,13 +64,11 @@ function createNote() {
 document.addEventListener('click', function(event) {
     if (event.target.classList.contains("noteListdel")) {
         const noteId = event.target.dataset.noteId;
-        console.log(noteId);
         deleteNote(noteId);
     } else if (event.target.classList.contains('changeButton')) {
         const noteId = event.target.dataset.noteId;
         editNoteForm(noteId);
         isEditing = false;
-        console.log(isEditing);
     }
 });
 
@@ -109,7 +103,8 @@ function editNoteForm(idNote) {
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data);
+        document.getElementById('TitleInp').style.display = 'block';
+        
         const titleInp = document.getElementById("TitleInp");
         const contentInp = document.getElementById("NoteInp");
 
@@ -117,6 +112,7 @@ function editNoteForm(idNote) {
         contentInp.value = data.content;
 
         const buttonSubmit = document.getElementById("submitBut");
+        buttonSubmit.style.display = "block"
         buttonSubmit.textContent = "Сохранить";
         noteId = idNote;
     });
@@ -153,25 +149,28 @@ function resetForm() {
     buttonSubmit.textContent = "Создать";
 }
 
-function readNote() {
-    fetch("read.php", {
+function readNote(searchData = "") {
+    let url = "read.php"
+
+    if (searchData){
+        url += `?search=${encodeURIComponent(searchData)}`
+    }
+    
+    fetch(url, {
         method: "GET"
     })
     .then(response => response.json())
     .then(data => {
         const noteList = document.getElementById("noteList");
-        noteList.innerHTML = "";
+        noteList.innerHTML = ""; 
 
-        console.log(data);
         data.forEach(note => {
-            let noteList = document.getElementById('noteList');
-
             let noteDiv = document.createElement('div');
             noteDiv.classList.add('note');
 
             let dateCreation = document.createElement('p');
             dateCreation.classList.add('dateElement');
-            dateCreation.textContent = note.timeCreate;
+            dateCreation.textContent = `дата создания: ${note.timeCreate}`;
 
             let noteListdel = document.createElement('span');
             noteListdel.classList.add("noteListdel");
@@ -191,13 +190,13 @@ function readNote() {
             contentElement.classList.add('paragraphNote');
             contentElement.textContent = note.content;
 
-            noteDiv.appendChild(noteListdel);
-            noteDiv.appendChild(changeButtonNotes);
             noteDiv.appendChild(titleElement);
             noteDiv.appendChild(contentElement);
             noteDiv.appendChild(dateCreation);
+            noteDiv.appendChild(noteListdel);
+            noteDiv.appendChild(changeButtonNotes);
 
-            noteList.appendChild(noteDiv);
+            noteList.appendChild(noteDiv); 
         });
     })
     .catch(error => {
@@ -205,3 +204,37 @@ function readNote() {
         alert("Произошла ошибка: " + error.message);
     });
 }
+
+document.getElementById('NoteInp').addEventListener('focus', function() {
+    expandInput();
+});
+
+document.getElementById('submitBut').addEventListener('click', function(event) {
+    event.preventDefault();
+    collapseInput();
+});
+
+document.addEventListener('click', function(event) {
+    const inputContainer = document.querySelector('#noteForm');
+    if (!inputContainer.contains(event.target)) {
+        collapseInput();
+    }
+});
+
+function expandInput() {
+    document.getElementById('TitleInp').style.display = 'block';
+    document.getElementById("submitBut").style.display = "block";
+}
+
+function collapseInput() {
+    document.getElementById('TitleInp').value = '';
+    document.getElementById('NoteInp').value = '';
+    document.getElementById("submitBut").style.display = "none";
+    document.getElementById('TitleInp').style.display = 'none';
+}
+
+const searchInp = document.getElementById("search")
+
+searchInp.addEventListener("input", () =>{
+    readNote(searchInp.value)
+})
