@@ -1,0 +1,78 @@
+body {
+    margin: 0;
+    font-family: "Comfortaa", sans-serif;
+    font-weight: 400;
+    max-width: 100%;
+    background-color: #121212;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#Form {
+    width: 22.5vw;
+    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px;
+    border: 2px solid rgb(48, 50, 51);
+    border-radius: 15px;
+    min-width: 465px;
+    min-height: 525px;
+    max-height: 700px;
+}
+
+h1{
+    font-size: 40px;    
+}
+
+input {
+    font-family: "Comfortaa", sans-serif;
+    margin-bottom: 10px;
+    width: 100%;
+    padding: 10px;
+    background-color: #1E1E1E;
+    border: 2px solid #202020;
+    border-radius: 5px;
+    color: white;
+    margin: 5% 0 ;
+    font-size: 20px;
+}
+
+input:active, :hover, :focus {
+    outline: 0;
+    outline-offset: 0;
+}
+
+button {
+    font-family: "Comfortaa", sans-serif;
+    margin: 5% 0;
+    background-color: #1E1E1E;
+    min-width: 300px;
+    width: 90%;
+    height: 15%;    
+    border-radius: 5px;
+    border: none;
+    font-size: 20px;
+    color: white;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+
+button:hover, button:focus {
+    background-color: rebeccapurple;
+}
+
+p{
+    color: #9b4a4a;
+}

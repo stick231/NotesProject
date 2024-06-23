@@ -1,8 +1,10 @@
 <?php
+date_default_timezone_set('Europe/Moscow');
+
 $user = "root";
 $pass = "";
-$db = "noteapp";
 $host = "localhost";
+$db = "noteapp";
 
 $mysqli = new mysqli($host, $user, $pass, $db);
 

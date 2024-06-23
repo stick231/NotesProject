@@ -1,6 +1,37 @@
 window.addEventListener('DOMContentLoaded', () => {
+    checkUser()
     readNote();
+    collapseInput()
 });
+
+function checkUser() {
+    fetch("checkuser.php")
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        if (data.register) {
+            console.log("User is registered");
+
+            const el = document.getElementById("header");
+            const imgEl = el.querySelector("img"); 
+
+            const LoginEl = document.createElement("p");
+            LoginEl.textContent = data.login;
+
+            el.insertBefore(LoginEl, imgEl.nextSibling);
+
+            if (!data.authentication) {
+                window.location = "login.php";
+            }
+        } else {
+            console.log("User is not registered");
+            window.location = "register.php";
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 
 let noteId;
 let isEditing = true;
@@ -114,6 +145,10 @@ function editNoteForm(idNote) {
         const buttonSubmit = document.getElementById("submitBut");
         buttonSubmit.style.display = "block"
         buttonSubmit.textContent = "Сохранить";
+
+        const header = document.getElementById('header')
+        header.scrollIntoView({ behavior: 'smooth' });
+        
         noteId = idNote;
     });
 }
@@ -236,5 +271,5 @@ function collapseInput() {
 const searchInp = document.getElementById("search")
 
 searchInp.addEventListener("input", () =>{
-    readNote(searchInp.value)
+    readNote(searchInp.value);
 })
