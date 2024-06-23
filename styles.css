@@ -51,7 +51,7 @@ h1 {
     border: 1px solid rgb(148, 139, 139);
 }
 
-input, textarea, button{
+input, textarea, button {
     font-family: "Comfortaa", sans-serif;
 }
 
@@ -92,9 +92,10 @@ main input, main textarea {
     background-color: #121212;
     color: white;
     resize: none;
+    transition: opacity 0.3s ease-in-out;
 }
 
-#noteForm{
+#noteForm {
     border: 2px solid #1E1E1E;
     width: 450px;
     height: auto;
@@ -102,21 +103,21 @@ main input, main textarea {
     border-radius: 15px;
 }
 
-
 button {
+    margin: 0 auto;
     background-color: #1E1E1E;
     width: 240px;
     height: 45px;
-    margin: 0 auto;
     border-radius: 5px;
     border: none;
     font-size: 20px;
     color: white;
     letter-spacing: 3px;
     cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
 }
 
-button:hover {
+button:hover, button:focus {
     background-color: rebeccapurple;
 }
 
@@ -153,7 +154,7 @@ section {
 
 ::-webkit-scrollbar {
     width: 0;
-  }
+}
 
 .note:hover {
     transform: scale(1.05);
@@ -193,6 +194,9 @@ section {
     margin: 0;
 }
 
-#TitleInp, #submitBut {
-    display: none;
+header p {
+    position: absolute;
+    top: 37.5px; /* Позиционируем <p> под изображением */
+    left: 15px;
+
 }
