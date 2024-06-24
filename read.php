@@ -26,10 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     if (isset($_GET["search"])) {
         $search = $mysqli->real_escape_string($_GET["search"]);
-
-        $sql .= " WHERE title LIKE '%$search%' 
-        OR content LIKE '%$search%'
-        OR timeCreate LIKE '%$search%'";
+        $sql .= " WHERE title LIKE '%$search%' OR content LIKE '%$search%' OR time LIKE '%$search%'";
     }
 
     $result = $mysqli->query($sql);
@@ -39,13 +36,12 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         exit;
     }
 
-    $note = array();
+    $notes = array();
     while ($row = $result->fetch_assoc()) {
-        $note[] = $row;
+        $notes[] = $row;
     }
 
-
-    echo json_encode($note);
+    echo json_encode($notes);
 } else {
     echo "Недопустимый метод запроса";
     exit;
