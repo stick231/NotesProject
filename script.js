@@ -6,19 +6,30 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function checkUser() {
     fetch("checkuser.php")
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         console.log(data);
         if (data.register) {
             console.log("User is registered");
 
             const el = document.getElementById("header");
-            const imgEl = el.querySelector("img"); 
-
-            const LoginEl = document.createElement("p");
-            LoginEl.textContent = data.login;
-
-            el.insertBefore(LoginEl, imgEl.nextSibling);
+            if (el) {
+                const imgEl = el.querySelector("img");
+                if (imgEl) {
+                    const LoginEl = document.createElement("p");
+                    LoginEl.textContent = data.login ? data.login : "Logged in user";
+                    el.insertBefore(LoginEl, imgEl.nextSibling);
+                } else {
+                    console.error("No img element found in header");
+                }
+            } else {
+                console.error("Header element not found");
+            }
 
             if (!data.authentication) {
                 window.location = "login.php";
@@ -187,7 +198,7 @@ function resetForm() {
 function readNote(searchData = "") {
     let url = "read.php"
 
-    if (searchData){
+    if (searchData) {
         url += `?search=${encodeURIComponent(searchData)}`
     }
     
@@ -196,6 +207,7 @@ function readNote(searchData = "") {
     })
     .then(response => response.json())
     .then(data => {
+        console.log(data)
         const noteList = document.getElementById("noteList");
         noteList.innerHTML = ""; 
 
@@ -203,9 +215,13 @@ function readNote(searchData = "") {
             let noteDiv = document.createElement('div');
             noteDiv.classList.add('note');
 
-            let dateCreation = document.createElement('p');
-            dateCreation.classList.add('dateElement');
-            dateCreation.textContent = `дата создания: ${note.timeCreate}`;
+            let dateNote = document.createElement('p');
+            dateNote.classList.add('dateElement');
+            if (note.last_update) {
+                dateNote.textContent = `Дата редактирования: ${note.last_update}`;
+            } else {
+                dateNote.textContent = `дата создания: ${note.time}`;
+            }
 
             let noteListdel = document.createElement('span');
             noteListdel.classList.add("noteListdel");
@@ -227,7 +243,7 @@ function readNote(searchData = "") {
 
             noteDiv.appendChild(titleElement);
             noteDiv.appendChild(contentElement);
-            noteDiv.appendChild(dateCreation);
+            noteDiv.appendChild(dateNote);
             noteDiv.appendChild(noteListdel);
             noteDiv.appendChild(changeButtonNotes);
 

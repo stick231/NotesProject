@@ -8,7 +8,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
     $content = $_POST["content"];
     $timeUpdate = date('Y-m-d H:i:s');
 
-    $query = "UPDATE note SET title = ?, content = ?, timeCreate = ? WHERE id = ?";
+    $query = "UPDATE note SET title = ?, content = ?, last_update = ? WHERE id = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("sssi", $title, $content, $timeUpdate, $id);
 
