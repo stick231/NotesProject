@@ -176,6 +176,19 @@ section {
     100% { transform: translateY(0); }
 }
 
+.note p{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 100%; /* Ограничиваем ширину */
+    cursor: pointer;
+}
+
+.note:hover p{
+    overflow: visible;
+    white-space: normal;
+} 
+
 .noteListdel, .changeButton {
     cursor: pointer;
     margin-right: 8px;
@@ -198,5 +211,4 @@ header p {
     position: absolute;
     top: 37.5px; /* Позиционируем <p> под изображением */
     left: 15px;
-
 }

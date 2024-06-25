@@ -53,6 +53,10 @@ input:active, :hover, :focus {
     outline-offset: 0;
 }
 
+input:focus {
+    background-color: #f0f0f0 !important;
+}
+
 button {
     font-family: "Comfortaa", sans-serif;
     margin: 5% 0;
