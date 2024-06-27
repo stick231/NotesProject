@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $existingUser = $stmt->fetch();
 
     if ($existingUser) {
-        $error = "Username already exists";
+        $error = "Такой пользователь уже есть";
     } else {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
@@ -21,6 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $userId = $mysqli->insert_id;
         setcookie("user_id", $userId, time() + 3600 * 60 * 60 * 60 * 60, "/"); 
         $_SESSION['user_id'] = $userId;
+
+        $_SESSION["register_username"] = $username;
+        $_SESSION['just_registered'] = true;
         header('Location: index.html');
         exit();
     }

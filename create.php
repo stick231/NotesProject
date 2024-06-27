@@ -7,9 +7,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $content = $_POST["content"];
     $timeCreate = date('Y-m-d H:i:s');
 
-    $query = "INSERT INTO note (title, content, time, last_update) VALUES (?, ?, ?, ?)";
+    $query = "INSERT INTO note (title, content, time) VALUES (?, ?, ?)";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("ssss", $title, $content, $timeCreate, $timeCreate);
+    $stmt->bind_param("sss", $title, $content, $timeCreate);
 
     if ($stmt->execute()) {
         $response = array(

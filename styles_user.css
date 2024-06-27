@@ -54,7 +54,7 @@ input:active, :hover, :focus {
 }
 
 input:focus {
-    background-color: #f0f0f0 !important;
+    background-color: #1E1E1E !important;
 }
 
 button {

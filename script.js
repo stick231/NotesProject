@@ -207,9 +207,33 @@ function readNote(searchData = "") {
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data)
         const noteList = document.getElementById("noteList");
-        noteList.innerHTML = ""; 
+        const sectionNote = document.getElementById("sectionNote");
+
+        noteList.innerHTML = "";
+        const textNoNotes = sectionNote.querySelector(".textNoNotes");
+        if (textNoNotes) {
+            sectionNote.removeChild(textNoNotes);
+        }
+
+        if (data.length === 0) {
+            console.log("Нету заметок");
+
+            const newTextNoNotes = document.createElement("h3");
+
+            if(url !== "read.php"){
+                newTextNoNotes.textContent = "Таких заметок нету. Но вы можете их сделать";
+            }
+            else{
+                newTextNoNotes.textContent = "Заметок нету. Но вы можете их сделать";
+            }
+            newTextNoNotes.classList.add("textNoNotes");
+
+            sectionNote.appendChild(newTextNoNotes);
+            return;
+        }
+
+        console.log(data);
 
         data.forEach(note => {
             let noteDiv = document.createElement('div');
@@ -217,7 +241,7 @@ function readNote(searchData = "") {
 
             let dateNote = document.createElement('p');
             dateNote.classList.add('dateElement');
-            if (note.last_update) {
+            if (note.last_update !== '0000-00-00 00:00:00') {
                 dateNote.textContent = `Дата редактирования: ${note.last_update}`;
             } else {
                 dateNote.textContent = `дата создания: ${note.time}`;

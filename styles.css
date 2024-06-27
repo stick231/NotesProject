@@ -124,8 +124,8 @@ button:hover, button:focus {
 section {
     grid-area: section;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    grid-auto-rows: minmax(150px, auto);
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    grid-auto-rows: minmax(280px, auto);
     gap: 16px;
     padding: 16px;
 }
@@ -144,12 +144,13 @@ section {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
     word-wrap: break-word;
-    min-width: 240px;
+    min-width: 285px;
+    max-width: 310px;
     min-height: 250px;
     max-height: 300px;
     overflow-wrap: break-word;
-    word-break: break-all;
-    overflow-y: scroll;
+    word-break: break-word; 
+    overflow-y: auto; 
 }
 
 ::-webkit-scrollbar {
@@ -176,18 +177,17 @@ section {
     100% { transform: translateY(0); }
 }
 
-.note p{
+
+.note p {
     overflow: hidden;
-    white-space: nowrap;
+    white-space: normal; 
     text-overflow: ellipsis;
-    max-width: 100%; /* Ограничиваем ширину */
-    cursor: pointer;
+    max-width: 100%;
+    line-height: 1.4; 
+    letter-spacing: 1px;
 }
 
-.note:hover p{
-    overflow: visible;
-    white-space: normal;
-} 
+
 
 .noteListdel, .changeButton {
     cursor: pointer;
@@ -200,15 +200,24 @@ section {
 }
 
 .h3Note {
-    margin: 0 0 8px 0;
+    margin: 0 0 2px 0;
+    letter-spacing: 1px;
+    line-height: 1.3; 
 }
 
-.paragraphNote {
-    margin: 0;
-}
 
 header p {
     position: absolute;
-    top: 37.5px; /* Позиционируем <p> под изображением */
+    top: 37.5px;
     left: 15px;
+}
+
+.textNoNotes {
+    color: rgb(182, 175, 175);
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 53%;
+    transform: translate(-50%, -50%);
+    width: 100%;
 }
