@@ -27,11 +27,15 @@ header {
     align-items: center;
 }
 
+#user-img{
+    cursor: pointer;
+}
+
 h1 {
     margin: 0;
     flex-grow: 1;
     text-align: center;
-    margin-right: -17.5%;
+    margin-right: -12%;
     letter-spacing: 4px;
 }
 
@@ -95,6 +99,36 @@ main input, main textarea {
     transition: opacity 0.3s ease-in-out;
 }
 
+#btn-back{
+    position: relative;
+    width: 50px;
+    height: 30px;
+    background-color: #2b2b2b;
+    border-radius: 1px 5px 5px 1px;
+    cursor: pointer; 
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Плавные переходы для прозрачности и трансформации */
+    transform: scale(0); /* Начальное состояние - элемент сжат */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    left: 2%;
+}
+
+#btn-back:hover {
+    background-color: #c0b8b8;
+}
+
+#btn-back.visible {
+    opacity: 1;
+    transform: scale(1); /* Конечное состояние - элемент в нормальном размере */
+}
+
+#logout{
+    width: 24px;
+    height: 24px;
+}
+
 #noteForm {
     border: 2px solid #1E1E1E;
     width: 450px;
@@ -103,7 +137,7 @@ main input, main textarea {
     border-radius: 15px;
 }
 
-button {
+#submitBut {
     margin: 0 auto;
     background-color: #1E1E1E;
     width: 240px;
@@ -117,7 +151,7 @@ button {
     transition: background-color 0.3s ease-in-out;
 }
 
-button:hover, button:focus {
+#submitBut:hover, #submitBut:focus {
     background-color: rebeccapurple;
 }
 

@@ -22,7 +22,8 @@ function checkUser() {
                 const imgEl = el.querySelector("img");
                 if (imgEl) {
                     const LoginEl = document.createElement("p");
-                    LoginEl.textContent = data.login ? data.login : "Logged in user";
+                
+                    LoginEl.textContent = data.register_username ? data.register_username : data.login;
                     el.insertBefore(LoginEl, imgEl.nextSibling);
                 } else {
                     console.error("No img element found in header");
@@ -32,7 +33,11 @@ function checkUser() {
             }
 
             if (!data.authentication) {
-                window.location = "login.php";
+                if(!data.just_registered){
+                    window.location = "login.php";
+                } else{
+                    console.log("Пользователь только зарегистрировался")
+                }   
             }
         } else {
             console.log("User is not registered");
@@ -43,6 +48,31 @@ function checkUser() {
         console.error('Error:', error);
     });
 }
+
+
+document.getElementById("user-img").addEventListener("click", (event) => {
+    const btnBack = document.getElementById("btn-back");
+    btnBack.classList.add("visible"); 
+});
+
+document.addEventListener("click", (event) => {
+    const userImg = document.getElementById("user-img");
+    const btnBack = document.getElementById("btn-back");
+
+    if (!userImg.contains(event.target) && !btnBack.contains(event.target)) {
+        btnBack.classList.remove("visible");
+    }
+});
+
+document.getElementById("logout").addEventListener("click", ()=>{
+    fetch("back_user.php", {
+        method: "POST"
+    })
+    .then()
+    .then(data => {
+    })
+    window.location.reload();
+})
 
 let noteId;
 let isEditing = true;
@@ -276,7 +306,6 @@ function readNote(searchData = "") {
     })
     .catch(error => {
         console.log("Произошла ошибка: " + error.message);
-        alert("Произошла ошибка: " + error.message);
     });
 }
 

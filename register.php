@@ -28,10 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 }
+if($_SERVER['REQUEST_METHOD'] == "GET"){
 
-if (isset($_SESSION["user_id"])) {
-    header("location: index.html");
-    exit();
+}
+else{
+    if(isset($_COOKIE["user_id"])) {
+        header("location: index.html");
+        exit();
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -45,13 +49,25 @@ if (isset($_SESSION["user_id"])) {
     <div id="container">
     <form id="Form" method="post">
         <h1>Регистрация</h1>    
-        <?php if (isset($error)) echo "<p>$error</p>"; ?>
+        <?php if (isset($error)) echo "<p>$error</p>";?>
         <input type="text"  maxlength="20" id="username" name="username" placeholder="Логин.." required>
         <br>
         <input type="password" id="password" maxlength="30" name="password" placeholder="Пароль.." required>
         <br>
+        <a id="link">Уже зарегистрирован</a>
         <button type="submit">Зарегистрироваться</button>
     </form>
     </div>
+    <script>
+        document.getElementById("link").addEventListener("click", ()=>{
+            fetch("login.php?register=true",{
+                method: "GET"
+            })
+            .then(data =>{
+                console.log(data)
+                window.location = "login.php"
+            })
+        })
+    </script>
 </body>
 </html>
