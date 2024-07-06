@@ -80,3 +80,7 @@ button:hover, button:focus {
 p{
     color: #9b4a4a;
 }
+
+#link{
+    cursor: pointer;
+}

@@ -2,7 +2,9 @@
 session_start();
 require_once 'db.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+setcookie("register", 'none', time() + 3600 * 24 * 30, "/");
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
@@ -19,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute([$username, $hashedPassword]);
 
         $userId = $mysqli->insert_id;
-        setcookie("user_id", $userId, time() + 3600 * 60 * 60 * 60 * 60, "/"); 
+        setcookie("user_id", $userId, time() + 3600 * 24 * 30, "/"); 
+        setcookie("register", "true", time() + 3600 * 24 * 30, "/");
         $_SESSION['user_id'] = $userId;
 
         $_SESSION["register_username"] = $username;
@@ -28,15 +31,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 }
-if($_SERVER['REQUEST_METHOD'] == "GET"){
 
-}
-else{
-    if(isset($_COOKIE["user_id"])) {
-        header("location: index.html");
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
+    if ($_POST['register'] == 'false') {
+    }
+} else {
+    if (isset($_COOKIE["user_id"]) && $_COOKIE["register"] === "true") {
+        header("Location: index.html");
         exit();
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -59,15 +64,28 @@ else{
     </form>
     </div>
     <script>
-        document.getElementById("link").addEventListener("click", ()=>{
-            fetch("login.php?register=true",{
-                method: "GET"
+        document.getElementById("link").addEventListener("click", () => {
+            fetch("login.php", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: "register=true"
             })
-            .then(data =>{
-                console.log(data)
-                window.location = "login.php"
+            .then(response => {
+                if (response.ok) {
+                    console.log("Перенаправление на вход");
+                    setTimeout(() => {
+                        window.location = "login.php";
+                    }, 500);
+                } else {
+                    console.error("Ошибка при перенаправлении:", response.status);
+                }
             })
-        })
+            .catch(error => {
+                console.error("Ошибка при выполнении запроса:", error);
+            });
+        });
     </script>
 </body>
 </html>

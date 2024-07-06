@@ -64,7 +64,7 @@ document.addEventListener("click", (event) => {
     }
 });
 
-document.getElementById("logout").addEventListener("click", ()=>{
+document.getElementById("btn-back").addEventListener("click", ()=>{
     fetch("back_user.php", {
         method: "POST"
     })

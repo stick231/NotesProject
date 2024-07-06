@@ -104,7 +104,7 @@ main input, main textarea {
     width: 50px;
     height: 30px;
     background-color: #2b2b2b;
-    border-radius: 1px 5px 5px 1px;
+    border-radius: 5px 5px 5px 5px;
     cursor: pointer; 
     transition: opacity 0.3s ease, transform 0.3s ease; /* Плавные переходы для прозрачности и трансформации */
     transform: scale(0); /* Начальное состояние - элемент сжат */
