@@ -54,12 +54,12 @@ if (isset($_SESSION["login"]) || isset($_SESSION['just_registered'])) {
     <form id="Form" method="post">
         <h1>Вход в аккаунт</h1>
         <?php if (isset($warning)) echo "<p>$warning</p>";?>
-        <input type="text" id="username" name="login" placeholder="Логин.." required>
+        <input type="text" id="username" name="login" placeholder="Логин..">
         <br>
-        <input type="password" id="password" placeholder="Пароль.." name="password" required>
+        <input type="password" id="password" placeholder="Пароль.." name="password">
         <br>
         <a id="link">Еще не регистрировался</a>
-        <button type="submit">Войти</button>
+        <button type="submit" id="submit">Войти</button>
     </form>
     </div>
     <script>
@@ -85,6 +85,30 @@ if (isset($_SESSION["login"]) || isset($_SESSION['just_registered'])) {
                 console.error("Ошибка при выполнении запроса:", error);
             });
         });
+
+        function CheckInp(){
+            const inpUsername = document.getElementById("username");
+            const inpPassword = document.getElementById("password");
+    
+
+            if(inpUsername.value == null || inpUsername.value == ""){
+                alert("Введите имя пользователя")
+                return false;
+            }
+
+            if(inpPassword.value == null || inpPassword.value == ""){
+                alert("Введите пароль")
+                return false;
+            }
+
+            return true;
+        }
+
+        document.getElementById("submit").addEventListener("click", () =>{
+            if (!CheckInp()) {
+                event.preventDefault();
+            }
+        })
     </script>
 </body>
 </html>

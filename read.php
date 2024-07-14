@@ -22,11 +22,11 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         exit;
     }
 
-    $sql = "SELECT * FROM note";
+    $sql = "SELECT * FROM note WHERE reminder_time IS NULL";
 
     if (isset($_GET["search"])) {
         $search = $mysqli->real_escape_string($_GET["search"]);
-        $sql .= " WHERE title LIKE '%$search%' OR content LIKE '%$search%' OR time LIKE '%$search%'";
+        $sql .= " AND (title LIKE '%$search%' OR content LIKE '%$search%' OR time LIKE '%$search%')";
     }
 
     $result = $mysqli->query($sql);

@@ -1,38 +1,43 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css">    
     <title>Заметки</title>
-  </head>
-  <body>
+</head>
+<body>
     <header id="header">
-      <img src="png/user-circle.png" alt="Пользователь: " id="user-img"><br>
-      <div id="btn-back" title="Выйти из аккаунта"><img id="logout" src="png/logout.png"></div>
-      <h1>Заметки</h1>
-      <input type="text" id="search" placeholder="Поиск">
-  </header>
-  <div class="sidebar">
-      <div class="nav-icons">
-          <span>🏠</span>
-          <span>📝</span>
-          <span>🔍</span>
-      </div>
-  </div>    
+        <img src="png/user-circle.png" alt="Пользователь: " id="user-img"><br>
+        <div id="btn-back" title="Выйти из аккаунта"><img id="logout" src="png/logout.png"></div>
+        <h1>Заметки</h1>
+        <input type="text" id="search" placeholder="Поиск">
+    </header>
+    <div class="sidebar">
+        <div class="nav-icons">
+            <div data-icon="notes"><span><img id="icon-note" src="png/icons8-notes-48.png" alt=""><p class="text">Заметки</p></span></div>
+            <div data-icon="reminders"><span><img src="png/icons8-reminder-241.png" alt=""><p class="text">Напоминания</p></span></div>
+            <div data-icon="settings"><span><img src="png/icons8-settings-48.png" alt=""><p class="text">Настройки</p></span></div>
+        </div>
+    </div>
     <div id="container">
-      <main>
-      <form id="noteForm">
-        <input id="TitleInp" type="text" name="title" maxlength="60" placeholder="Введите заголовок..."  title="Это ваш заголовок">
-        <textarea  id="NoteInp" name="content" cols="30" rows="3" placeholder="Заметка..." title="Это ваша заметка"></textarea>
-        <button type="submit" id="submitBut">Создать</button>
-      </form>
-    </main>
-    </div>  
-    <section id="sectionNote">
+        <main>
+            <form id="noteForm">
+                <input id="TitleInp" type="text" name="title" maxlength="60" placeholder="Введите заголовок..." title="Это ваш заголовок">
+                <textarea id="NoteInp" name="content" cols="30" rows="3" placeholder="Заметка..." title="Это ваша заметка"></textarea>
+                <div id="date-input-container"></div>
+                <button type="submit" id="submitBut">Создать</button>
+            </form>
+        </main>
+    </div>
+    <section id="notesSection">
         <div id="noteList"></div>
     </section>
-    <script src="script`.js"></script>
-  </body>
+    <section id="remindersSection">
+        <div id="reminderList"></div>
+        <div id="expiredReminderList"></div>
+    </section>
+    <script src="script.js"></script>
+</body>
 </html>

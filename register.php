@@ -55,12 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     <form id="Form" method="post">
         <h1>Регистрация</h1>    
         <?php if (isset($error)) echo "<p>$error</p>";?>
-        <input type="text"  maxlength="20" id="username" name="username" placeholder="Логин.." required>
+        <input type="text"  maxlength="20" id="username" name="username" placeholder="Логин..">
         <br>
-        <input type="password" id="password" maxlength="30" name="password" placeholder="Пароль.." required>
+        <input type="password" id="password" maxlength="30" name="password" placeholder="Пароль..">
         <br>
         <a id="link">Уже зарегистрирован</a>
-        <button type="submit">Зарегистрироваться</button>
+        <button type="submit" id="submit">Зарегистрироваться</button>
     </form>
     </div>
     <script>
@@ -86,6 +86,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                 console.error("Ошибка при выполнении запроса:", error);
             });
         });
+
+
+        function CheckInp(){
+    const inpUsername = document.getElementById("username");
+    const inpPassword = document.getElementById("password");
+
+    if(inpUsername.value == null || inpUsername.value == ""){
+        alert("Введите имя пользователя");
+        return false;
+    }
+
+    if(inpPassword.value == null || inpPassword.value == ""){
+        alert("Введите пароль");
+        return false;
+    }
+
+    if(inpUsername.value.length < 4){
+        alert("Имя пользователя должно быть больше 4 символов");
+        return false;
+    }
+
+    if(inpPassword.value.length < 4){
+        alert("Пароль должен содержать больше 4 символов");
+        return false;
+    }
+    return true;
+}
+
+document.getElementById("submit").addEventListener("click", (event) =>{
+    if (!CheckInp()) {
+        event.preventDefault();
+    }
+});
     </script>
 </body>
 </html>

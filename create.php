@@ -6,10 +6,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $title = $_POST["title"];
     $content = $_POST["content"];
     $timeCreate = date('Y-m-d H:i:s');
+    $reminderTime = isset($_POST["reminder_time"]) ? $_POST["reminder_time"] : null;
 
-    $query = "INSERT INTO note (title, content, time) VALUES (?, ?, ?)";
+    $query = "INSERT INTO note (title, content, time, reminder_time) VALUES (?, ?, ?, ?)";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("sss", $title, $content, $timeCreate);
+    $stmt->bind_param("ssss", $title, $content, $timeCreate, $reminderTime);
 
     if ($stmt->execute()) {
         $response = array(
