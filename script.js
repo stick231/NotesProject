@@ -117,8 +117,45 @@ function scheduleReminder(note) {
 }
 
 function sendReminder(note) {
-    alert(`Напоминание: ${note.title}\n${note.content}`);
-    //сделать сообщения 
+    if (!("Notification" in window)) {
+        alert("This browser does not support desktop notification");
+    } else if (Notification.permission === "granted") {
+        createNotification(note);
+    } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(function (permission) {
+            if (permission === "granted") {
+                createNotification(note);
+            } else {
+                alert(`Напоминание: ${note.title}\n${note.content}`);
+            }
+        });
+    } else {
+        alert(`Напоминание: ${note.title}\n${note.content}`);
+    }
+
+    setTimeout(() => {
+        readReminders();
+    }, 1000);
+}
+
+function createNotification(note) {
+    const options = {
+        body: note.content,
+        icon: 'png/icons8-reminder-241.png', 
+        sound: 'sound/message.mp3',
+        vibrate: [200, 100, 200], 
+        badge: 'png/icons8-notes-48.png', 
+        tag: 'reminder',
+        renotify: true,
+        requireInteraction: true 
+    };
+
+    const notification = new Notification(note.title, options);
+
+    if (options.sound) {
+        const audio = new Audio(options.sound);
+        audio.play().catch(error => console.error('Error playing sound:', error));
+    }
 }
 
 function readReminders(searchData = "") {
