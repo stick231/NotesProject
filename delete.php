@@ -1,25 +1,13 @@
 <?php
 require_once "db.php";
+require_once "user.php";
 
-if($_SERVER["REQUEST_METHOD"] === "POST"){
-    $id = $_POST["id"];
+$database = new DataBase();
+$db = $database->getConnection();
 
-    $query = "DELETE FROM note WHERE id = ?";
-    $stmt = $mysqli->prepare($query);
-    $stmt->bind_param('i', $id);
-    if ($stmt->execute()) {
-        $response = array(
-            'success' => true,
-            'message' => 'Устройство успешно удалено'
-        );
-    } else {
-        $response = array(
-            'success' => false,
-            'message' => 'Ошибка при удалении устройства: ' . $stmt->error
-        );
-    }
+$id = $_POST["id"];
 
-    $stmt->close();
-    echo json_encode($response);
-}
+$user = new User($db);
+$user->setId($id);
+$user->delete();
 ?>
