@@ -88,6 +88,7 @@ function scheduleReminder(note) {
         setTimeout(() => {
             sendReminder(note);
         }, delay);
+        console.log("не просроченное напоминание")
     } else {
         console.log("Отправляем запрос на expired.php с id:", note.id);
         fetch("expired.php", {
@@ -105,7 +106,7 @@ function scheduleReminder(note) {
         })
         .then(data => {
             if (data.success) {
-
+                console.log(data)
             } 
             else {
             }
@@ -270,11 +271,11 @@ function checkUser() {
             }
 
             if (!data.authentication && !data.just_registered) {
-                window.location = "login.php";
+                // window.location = "login.php";
             }
         } else {
             console.log("User is not registered");
-            window.location = "register.php";
+            // window.location = "register.php";
         }
     })
     .catch(error => {
@@ -423,21 +424,28 @@ function editNoteForm(idNote) {
     })
     .then(response => response.json())
     .then(data => {
-        expandInput()
+        if (data.length > 0) { 
+            expandInput();
 
-        const titleInp = document.getElementById("TitleInp");
-        const contentInp = document.getElementById("NoteInp");
+            const titleInp = document.getElementById("TitleInp");
+            const contentInp = document.getElementById("NoteInp");
 
-        titleInp.value = data.title;
-        contentInp.value = data.content;
+            titleInp.value = data[0].title; 
+            contentInp.value = data[0].content; 
 
-        const buttonSubmit = document.getElementById("submitBut");
-        buttonSubmit.textContent = "Сохранить";
+            const buttonSubmit = document.getElementById("submitBut");
+            buttonSubmit.textContent = "Сохранить";
 
-        const header = document.getElementById('header');
-        header.scrollIntoView({ behavior: 'smooth' });
+            const header = document.getElementById('header');
+            header.scrollIntoView({ behavior: 'smooth' });
 
-        noteId = idNote;
+            noteId = idNote;
+        } else {
+            console.error("No note found with the given ID.");
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching note:', error);
     });
 }
 

@@ -1,23 +1,30 @@
 <?php
 require_once "db.php";
-date_default_timezone_set('Europe/Moscow');
+require_once "user.php";
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $title = $_POST["title"];
+$database = new DataBase();
+$db = $database->getConnection();
+$user = new User($db);
+if(isset($_POST["title"]) && isset($_POST['content'])){
+    $title = $_POST['title'];
     $content = $_POST["content"];
-    $timeCreate = date('Y-m-d H:i:s');
+
     $reminderTime = isset($_POST["reminder_time"]) ? $_POST["reminder_time"] : null;
 
-    $query = "INSERT INTO note (title, content, time, reminder_time) VALUES (?, ?, ?, ?)";
-    $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("ssss", $title, $content, $timeCreate, $reminderTime);
+    $user->setTitle($title);
+    $user->setContent($content);
+    if ($reminderTime !== null) {
+        $user->setReminderTime($reminderTime);
+    }
 
-    if ($stmt->execute()) {
+    $create = $user->createNote();
+
+    if ($create) {
         $response = array(
             'success' => true,
-            'message' => 'Заметка успешно создана',
-            'timeCreate' => $timeCreate
+            'message' => 'Заметка успешно создана'
         );
+
         echo json_encode($response);
     } else {
         $response = array(
@@ -26,7 +33,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         );
         echo json_encode($response);
     }
-
-    $stmt->close();
 }
 ?>
