@@ -1,4 +1,8 @@
 <?php
+
+use class\DataBase;
+use class\User;
+
 require_once "db.php";
 require_once "user.php";
 
