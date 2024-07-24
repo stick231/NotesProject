@@ -1,6 +1,6 @@
 <?php
-require_once "db.php";
-require_once "user.php";
+require_once "class/db.php";
+require_once "class/user.php";
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
@@ -22,4 +22,3 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     echo "Недопустимый метод запроса";
     exit;
 }
-?>

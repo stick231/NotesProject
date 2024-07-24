@@ -88,6 +88,29 @@ function scheduleReminder(note) {
         setTimeout(() => {
             sendReminder(note);
         }, delay);
+        fetch("expired.php", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `id=${note.id}&expired=false`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                console.log(data)
+            } 
+            else {
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
         console.log("не просроченное напоминание")
     } else {
         console.log("Отправляем запрос на expired.php с id:", note.id);
@@ -226,7 +249,7 @@ function readReminders(searchData = "") {
             noteDiv.appendChild(noteListdel);
             noteDiv.appendChild(changeButtonNotes);
             
-            if(note.expired === "0"){
+            if(note.expired === 0){
                 reminderList.appendChild(noteDiv);
             }
             else{

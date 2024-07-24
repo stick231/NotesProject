@@ -1,6 +1,6 @@
 <?php
-require_once "db.php";
-require_once "user.php";
+require_once "class/db.php";
+require_once "class/user.php";
 
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -24,4 +24,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $user->update();
 }
-?>
