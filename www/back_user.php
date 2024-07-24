@@ -23,4 +23,3 @@ if (isset($_SERVER['HTTP_COOKIE'])) {
     }
 }
 
-?>

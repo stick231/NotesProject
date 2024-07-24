@@ -142,10 +142,10 @@ class User
     public function update()
     {
         $currentTime = strtotime(date('Y-m-d H:i:s'));
-        $reminderTimestamp = strtotime($this->time);
-
-        $expired = ($reminderTimestamp > $currentTime) ? 0 : 1;
-
+        $reminderTimestamp = strtotime($this->reminderTime);
+    
+        $expired = ($reminderTimestamp > $currentTime) ? 0 : 1; 
+    
         $query = "UPDATE note SET title = ?, content = ?, last_update = ?, reminder_time = ?, expired = ? WHERE id = ?";
         $stmt = $this->conn->prepare($query);
         $params = array($this->title,
@@ -172,15 +172,16 @@ class User
     }
 
     public function expiredReminders()
-    {
-        if ($this->expired) {
-            $query = "UPDATE note SET expired = TRUE WHERE id = ?";
-        } else {
-            $query = "UPDATE note SET expired = FALSE WHERE id = ?";
-        }
+    { 
+        $expired = filter_var($this->expired, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        
+        $query = "UPDATE note SET expired = ? WHERE id = ?";
+
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->id, PDO::PARAM_INT);
+
+        $stmt->bindParam(1, $expired, PDO::PARAM_INT);
+        $stmt->bindParam(2, $this->id, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             $response = array(
@@ -196,5 +197,3 @@ class User
         echo json_encode($response);
     }
 }
-
-?>
