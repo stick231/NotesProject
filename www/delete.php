@@ -1,4 +1,7 @@
 <?php
+use class\DataBase;
+use class\User;
+
 require_once "class/db.php";
 require_once "class/user.php";
 
@@ -10,4 +13,3 @@ $id = $_POST["id"];
 $user = new User($db);
 $user->setId($id);
 $user->delete();
-?>

@@ -1,0 +1,52 @@
+version: '3'
+
+### Services
+services:
+  ### Web Server Container
+  web:
+    image: lobsterk/web-nginx-php
+    container_name: web
+    restart: always
+    ports:
+      - "8172:80"
+    volumes:
+      - ./www:/var/www/public
+      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./.docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./.docker/php-fpm/php.ini:/etc/php/7.4/fpm/php.ini
+      - ./.docker/php-fpm/php-fpm.conf:/etc/php/7.4/fpm/php-fpm.conf
+
+    ## MySQL Container
+  mysql:
+      image: mysql:5.6.24
+      container_name: mysql
+      restart: always
+      ports:
+        - "3306:3306"
+#      volumes:
+#        - ./mysql/:/docker-entrypoint-initdb.d/
+#        - ./.docker/mysql/:/etc/mysql/conf.d/
+      environment:
+        MYSQL_DATABASE: dbtest
+        MYSQL_USER: user
+        MYSQL_PASSWORD: 1234
+        MYSQL_ROOT_PASSWORD: r1234
+    # Adminer container
+  adminer:
+      image: adminer
+      container_name: adminer
+      links:
+        - "mysql"
+      ports:
+        - "8080:8080"
+
+    # Redis
+  redis:
+      image: 'bitnami/redis:latest'
+      environment:
+        - ALLOW_EMPTY_PASSWORD=yes
+      #          - REDIS_PASSWORD=my_master_password
+      ports:
+        - '6379:6379'
+#        volumes:
+#          - ./.docker/redis:/bitnami

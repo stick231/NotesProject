@@ -23,4 +23,3 @@ if (isset($_COOKIE['user_id'])) {
     echo json_encode(['register' => false, 'authentication' => false]);
     exit;
 }
-?>

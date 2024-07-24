@@ -1,4 +1,7 @@
 <?php
+use class\DataBase;
+use class\User;
+
 require_once "class/db.php";
 require_once "class/user.php";
 
@@ -34,4 +37,3 @@ if(isset($_POST["title"]) && isset($_POST['content'])){
         echo json_encode($response);
     }
 }
-?>

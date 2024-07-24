@@ -1,4 +1,7 @@
 <?php
+use class\DataBase;
+use class\User;
+
 require_once "class/db.php";
 require_once "class/user.php";
 
@@ -8,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $user = new User($db);
 
-    $id = $_POST["id"];
+    $id = $_POST['id'];
     $user->setId($id);
 
     $expired = $_POST["expired"];
@@ -16,4 +19,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $user->expiredReminders();
 }
-?>
