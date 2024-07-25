@@ -18,7 +18,7 @@ services:
 
     ## MySQL Container
   mysql:
-      image: mysql:5.6.24
+      image: mysql:8.0
       container_name: mysql
       restart: always
       ports:
@@ -44,8 +44,8 @@ services:
   redis:
       image: 'bitnami/redis:latest'
       environment:
-        - ALLOW_EMPTY_PASSWORD=yes
-      #          - REDIS_PASSWORD=my_master_password
+        - REDIS_PASSWORD=my_master_password
+        # - ALLOW_EMPTY_PASSWORD=yes
       ports:
         - '6379:6379'
 #        volumes:

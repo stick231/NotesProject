@@ -19,7 +19,7 @@ RUN apt-get update && \
     libmcrypt-dev  \
     libicu-dev \
     libcurl4-openssl-dev \
-    mysql-client \
+    mysql-client-8.0 \
     libldap2-dev \
     libfreetype6-dev \
     libfreetype6 \
