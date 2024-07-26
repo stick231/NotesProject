@@ -77,19 +77,19 @@ class User
             $stmt = $this->conn->prepare($query);
 
             $searchParam = "%{$this->search}%";
-            $stmt->bindParam(':search', $searchParam, PDO::PARAM_STR);
+            $stmt->bindParam(':search', $searchParam, \PDO::PARAM_STR);
         } else if (isset($this->id)) {
             $query = "SELECT * FROM note WHERE id = :id";
 
             $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
+            $stmt->bindParam(':id', $this->id, \PDO::PARAM_INT);
         } else {
             $query = "SELECT * FROM note WHERE reminder_time IS NULL";
             $stmt = $this->conn->prepare($query);
         }
 
         $stmt->execute();
-        $notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         $response = $notes;
 
@@ -112,7 +112,7 @@ class User
         if (!$stmt) {
             echo json_encode("Ошибка выполнения запроса: " . $this->conn->error);
         } else {
-            $notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             $response = $notes;
             echo json_encode($response);
@@ -123,7 +123,7 @@ class User
     {
         $query = "DELETE FROM note WHERE id = ?";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->id, PDO::PARAM_INT);
+        $stmt->bindParam(1, $this->id, \PDO::PARAM_INT);
         if ($stmt->execute()) {
             $response = array(
                 'success' => true,
@@ -180,8 +180,8 @@ class User
 
         $stmt = $this->conn->prepare($query);
 
-        $stmt->bindParam(1, $expired, PDO::PARAM_INT);
-        $stmt->bindParam(2, $this->id, PDO::PARAM_INT);
+        $stmt->bindParam(1, $expired, \PDO::PARAM_INT);
+        $stmt->bindParam(2, $this->id, \PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             $response = array(
