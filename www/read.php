@@ -1,7 +1,4 @@
 <?php
-use class\DataBase;
-use class\User;
-
 require_once "class/db.php";
 require_once "class/user.php";
 
@@ -25,4 +22,3 @@ else if(isset($_GET['id'])){
 else{
     $user->readNote();
 }
-?>
