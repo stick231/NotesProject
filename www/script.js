@@ -111,7 +111,6 @@ function scheduleReminder(note) {
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
         });
-        console.log("не просроченное напоминание")
     } else {
         console.log("Отправляем запрос на expired.php с id:", note.id);
         fetch("expired.php", {
@@ -129,7 +128,6 @@ function scheduleReminder(note) {
         })
         .then(data => {
             if (data.success) {
-                console.log(data)
             } 
             else {
             }
@@ -249,7 +247,7 @@ function readReminders(searchData = "") {
             noteDiv.appendChild(noteListdel);
             noteDiv.appendChild(changeButtonNotes);
             
-            if(note.expired === 0){
+            if(note.expired == 0){
                 reminderList.appendChild(noteDiv);
             }
             else{
@@ -294,11 +292,11 @@ function checkUser() {
             }
 
             if (!data.authentication && !data.just_registered) {
-                // window.location = "login.php";
+                window.location = "login.php";
             }
         } else {
             console.log("User is not registered");
-            // window.location = "register.php";
+            window.location = "register.php";
         }
     })
     .catch(error => {
