@@ -1,35 +1,20 @@
 <?php
-session_start();
-require_once 'db.php';
-
-setcookie("register", 'none', time() + 3600 * 24 * 30, "/");
+require_once 'class/db.php';
+require_once 'class/auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = $_POST["username"];
+    $password = $_POST["password"];
 
-    $stmt = $mysqli->prepare("SELECT * FROM users WHERE username = ?");
-    $stmt->execute([$username]);
-    $existingUser = $stmt->fetch();
+    $database = new DataBase();
+    $db = $database->getConnection();
 
-    if ($existingUser) {
-        $error = "Такой пользователь уже есть";
-    } else {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    $register = new UserRegistration($db);
 
-        $stmt = $mysqli->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-        $stmt->execute([$username, $hashedPassword]);
+    $register->setUsername($username);
+    $register->setPassword($password);
 
-        $userId = $mysqli->insert_id;
-        setcookie("user_id", $userId, time() + 3600 * 24 * 30, "/"); 
-        setcookie("register", "true", time() + 3600 * 24 * 30, "/");
-        $_SESSION['user_id'] = $userId;
-
-        $_SESSION["register_username"] = $username;
-        $_SESSION['just_registered'] = true;
-        header('Location: index.html');
-        exit();
-    }
+    $response = $register->registerNewUser();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
@@ -54,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     <div id="container">
     <form id="Form" method="post">
         <h1>Регистрация</h1>    
-        <?php if (isset($error)) echo "<p>$error</p>";?>
+        <?php if (isset($response)) echo "<p>$response</p>";?>
         <input type="text"  maxlength="20" id="username" name="username" placeholder="Логин..">
         <br>
         <input type="password" id="password" maxlength="30" name="password" placeholder="Пароль..">

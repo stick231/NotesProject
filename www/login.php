@@ -1,6 +1,6 @@
 <?php
-session_start();
-require_once 'db.php';
+require_once 'class/db.php';
+require_once 'class/auth.php';
 
 setcookie("register", 'false', time() + 3600 * 24 * 30, "/");
 
@@ -12,30 +12,17 @@ if (isset($_POST["login"]) && isset($_POST["password"])) {
     $login = $_POST["login"];
     $password = $_POST["password"];
 
-    $query = "SELECT * FROM users WHERE username = ?";
-    $stmt = $mysqli->prepare($query);
-    $stmt->bind_param('s', $login);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $database = new DataBase();
+    $db = $database->getConnection(); 
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        if (password_verify($password, $row["password"])) {
-            $userId = $row['id'];
-            setcookie("user_id", $userId, time() + 3600 * 24 * 30, "/");
-            $_SESSION["login"] = $login;
-            setcookie("register", 'true', time() + 3600 * 24 * 30, "/");
-            header("location: index.html");
-            exit;
-        } else {
-            $warning = "Неверный логин или пароль";
-        }
-    } else {
-        $warning = "Пользователь не найден";
-    }
-} else {
-    $warning = "Ошибка авторизации";
-}
+    $auth = new UserRegistration($db);
+
+    $auth->setUsername($login);
+    $auth->setPassword($password);
+
+    $response = $auth->authenticateUser();
+} 
+
 
 if (isset($_SESSION["login"]) || isset($_SESSION['just_registered'])) {
     header("location: index.html");
@@ -53,7 +40,7 @@ if (isset($_SESSION["login"]) || isset($_SESSION['just_registered'])) {
     <div id="container">
     <form id="Form" method="post">
         <h1>Вход в аккаунт</h1>
-        <?php if (isset($warning)) echo "<p>$warning</p>";?>
+        <?php if (isset($response)) echo "<p>$response</p>";?>
         <input type="text" id="username" name="login" placeholder="Логин..">
         <br>
         <input type="password" id="password" placeholder="Пароль.." name="password">
