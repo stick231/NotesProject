@@ -77,6 +77,14 @@ COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./www/index.php /var/www/public/
 RUN mkdir -p /run/php && touch /run/php/php7.4-fpm.sock && touch /run/php/php7.4-fpm.pid
 
+# Копирование файлов composer.json
+COPY ./composer.json /var/www/
+COPY ./composer.lock /var/www/ 
+
+# Установка зависимостей из composer.json
+WORKDIR /var/www/
+RUN composer install --no-dev --optimize-autoloade
+
 COPY entrypoint.sh /entrypoint.sh
 
 WORKDIR /var/www/

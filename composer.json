@@ -1,0 +1,12 @@
+{
+    "name": "stick231/notesproject",
+    "description": "Проект заметок",
+    "require": {
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "autoload": {
+        "files": [
+            "autoload.php"
+        ]
+    }
+}

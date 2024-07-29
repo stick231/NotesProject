@@ -2,11 +2,28 @@
 require_once 'class/db.php';
 require_once 'class/auth.php';
 
+function autoloader($class)
+{
+    $file = __DIR__ . "/class/{$class}.php";
+
+    if (file_exists($file)) {
+        require_once $file;
+        // echo "Класс $class загружен успешно.<br>";
+    } else {
+        error_log("Class file not found: " . $file);
+        echo "Ошибка: файл класса $class не найден.<br>";
+    }
+}
+spl_autoload_register('autoloader');
+
+$register = new Register();
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
+    require_once "bootstrap.php";
+
     $username = $_POST["username"];
     $password = $_POST["password"];
 
-    $database = new DataBase();
+    $database = new DataBase();//DataBase
     $db = $database->getConnection();
 
     $register = new UserRegistration($db);
@@ -22,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     }
 } else {
     if (isset($_COOKIE["user_id"]) && $_COOKIE["register"] === "true") {
-        header("Location: index.html");
+        header("Location: index.php");
         exit();
     }
 }

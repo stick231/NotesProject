@@ -2,11 +2,24 @@
 
 class DataBase
 {
-    private $user = "user";
-    private $pass = "1234";
-    private $host = "mysql";
-    private $db = "dbtest";
+    private $user;
+    private $pass;
+    private $host;
+    private $db;
     public $conn;
+
+    function __construct()
+    {
+        $this->user = getenv("DB_USER");
+        $this->pass = getenv("DB_PASSWORD");
+        $this->host = getenv("DB_HOST");
+        $this->db = getenv("DB_NAME");
+
+        echo "DB_USER: " . $this->user . "<br>";
+        echo "DB_PASSWORD: " . $this->pass . "<br>";
+        echo "DB_HOST: " . $this->host . "<br>";
+        echo "DB_NAME: " . $this->db . "<br>";
+    }
 
     public function getConnection()
     {
@@ -20,4 +33,4 @@ class DataBase
     }
 }
 
-?> 
+ 

@@ -25,7 +25,7 @@ if (isset($_POST["login"]) && isset($_POST["password"])) {
 
 
 if (isset($_SESSION["login"]) || isset($_SESSION['just_registered'])) {
-    header("location: index.html");
+    header("location: index.php");
     exit;
 }
 ?>

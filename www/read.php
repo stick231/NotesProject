@@ -1,4 +1,5 @@
 <?php
+require_once "bootstrap.php";
 require_once "class/db.php";
 require_once "class/user.php";
 
