@@ -16,12 +16,12 @@ abstract class AbstractNote{
 
     public function getId()
     {
-
+.       return $this->is;
     }
 
     public function getSearch()
     {
-
+        return $this->search;
     }
 
     public function getTitle() 
