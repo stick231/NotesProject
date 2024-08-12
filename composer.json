@@ -5,8 +5,10 @@
         "vlucas/phpdotenv": "^5.4"
     },
     "autoload": {
-        "files": [
-            "autoload.php"
-        ]
+        "psr-4": {
+            "Entities\\": "src/Entities/",
+            "Repositories\\": "src/Repositories/",
+            "Factory\\": "src/Factory/"
+        }
     }
 }

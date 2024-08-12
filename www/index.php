@@ -1,6 +1,4 @@
-<?php
-
-?>
+<!-- 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -22,7 +20,7 @@
         <div class="nav-icons">
             <div data-icon="notes"><span><img id="icon-note" src="png/icons8-notes-48.png" alt=""><p class="text">Заметки</p></span></div>
             <div data-icon="reminders"><span><img src="png/icons8-reminder-241.png" alt=""><p class="text">Напоминания</p></span></div>
-            <!-- <div data-icon="settings"><span><img src="png/icons8-settings-48.png" alt=""><p class="text">Настройки</p></span></div> -->
+             <div data-icon="settings"><span><img src="png/icons8-settings-48.png" alt=""><p class="text">Настройки</p></span></div> 
         </div>
     </div>
     <div id="container">
@@ -44,4 +42,23 @@
     </section>
     <script src="script.js"></script>
   </body>
-</html>
+</html> -->
+
+<?php
+require_once __DIR__ . '/../vendor/autoload.php'; 
+
+use Entities\Database;
+use Repository\NoteRepository;
+use Factory\NoteFactory;
+
+$database = new Database();
+$noteRepository = new NoteRepository($database);
+$noteFactory = new NoteFactory();
+
+$note = $noteFactory->saveNote('note', null, '', 'Заголовок заметки', 'Содержимое заметки');
+$noteRepository->create($note);
+
+$reminder = $noteFactory->saveNote('reminder', null, '', 'Заголовок напоминания', 'Содержимое напоминания', new DateTime('2024-08-15 10:00'));
+$noteRepository->create($reminder);
+
+echo $noteRepository->readNote($note);

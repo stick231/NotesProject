@@ -1,6 +1,9 @@
 <?php
-require_once 'class/db.php';
-require_once 'class/auth.php';
+require_once __DIR__ . '/../vendor/autoload.php'; 
+
+use Entities\User;
+use Repository\UserRepository;
+use Entities\Database;
 
 setcookie("register", 'false', time() + 3600 * 24 * 30, "/");
 
@@ -15,12 +18,19 @@ if (isset($_POST["login"]) && isset($_POST["password"])) {
     $database = new DataBase();
     $db = $database->getConnection(); 
 
-    $auth = new UserRegistration($db);
+    $user = (new User())
+        ->setUsername($login)
+        ->setPassword($password);
 
-    $auth->setUsername($login);
-    $auth->setPassword($password);
+    $userRepository = new UserRepository($db);
 
-    $response = $auth->authenticateUser();
+    if ($userRepository->authenticate($user)) {
+        header("Location: index.php");
+        exit; 
+    } else {
+        $response = $userRepository->authenticate($user);
+    }
+
 } 
 
 

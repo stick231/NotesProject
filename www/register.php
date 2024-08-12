@@ -1,37 +1,30 @@
 <?php
-require_once 'class/db.php';
-require_once 'class/auth.php';
+require_once __DIR__ . '/../vendor/autoload.php'; 
 
-function autoloader($class)
-{
-    $file = __DIR__ . "/class/{$class}.php";
+use Entities\User;
+use Repository\UserRepository;
+use Entities\Database;
 
-    if (file_exists($file)) {
-        require_once $file;
-        // echo "Класс $class загружен успешно.<br>";
-    } else {
-        error_log("Class file not found: " . $file);
-        echo "Ошибка: файл класса $class не найден.<br>";
-    }
-}
-spl_autoload_register('autoloader');
-
-$register = new Register();
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
-    require_once "bootstrap.php";
-
     $username = $_POST["username"];
     $password = $_POST["password"];
 
-    $database = new DataBase();//DataBase
-    $db = $database->getConnection();
+    $database = new DataBase();
+    $db = $database->getConnection(); 
 
-    $register = new UserRegistration($db);
+    $user = (new User())
+        ->setUsername($login)
+        ->setPassword($password);
 
-    $register->setUsername($username);
-    $register->setPassword($password);
+    $userRepository = new UserRepository($db);
 
-    $response = $register->registerNewUser();
+    if ($userRepository->register($user)) {
+        header("Location: index.php");
+        exit; 
+    } else {
+        $response = $userRepository->register($user);
+    }
+
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
