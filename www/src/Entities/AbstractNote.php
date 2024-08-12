@@ -16,7 +16,7 @@ abstract class AbstractNote{
 
     public function getId()
     {
-.       return $this->is;
+.       return $this->id;
     }
 
     public function getSearch()
