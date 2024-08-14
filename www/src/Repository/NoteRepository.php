@@ -28,8 +28,8 @@ class NoteRepository implements NoteRepositoryInterface{
             $params = array(
                 $abstractNote->getTitle(),
                 $abstractNote->getContent(),
-                ('Y-m-d H:i:s'),
-                $reminderTime
+                date('Y-m-d H:i:s'),
+                $reminderTime instanceof \DateTime ? $reminderTime->format('Y-m-d H:i:s') : $reminderTime
             );
             if ($stmt->execute($params)) {
                 return true;
@@ -46,14 +46,7 @@ class NoteRepository implements NoteRepositoryInterface{
     public function readNote(Note $note)
     {   
         try{
-            if ($note->getSearch()) {
-                $query = "SELECT * FROM note WHERE reminder_time IS NULL AND (title LIKE :search OR content LIKE :search OR time LIKE :search)";
-
-                $stmt = $this->pdo->prepare($query);
-
-                $searchParam = "%{$note->getSearch()}%";
-                $stmt->bindParam(':search', $searchParam, \PDO::PARAM_STR);
-            } else if (isset($this->id)) {
+            if (isset($this->id)) {
                 $query = "SELECT * FROM note WHERE id = :id";
 
                 $stmt = $this->pdo->prepare($query);
@@ -65,9 +58,8 @@ class NoteRepository implements NoteRepositoryInterface{
 
         $stmt->execute();
         $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
+        
         $response = $notes;
-
         echo json_encode($response);
         }
         catch (\PDOException $e) {
@@ -80,16 +72,9 @@ class NoteRepository implements NoteRepositoryInterface{
     {   
         try{
             $query = "SELECT * FROM note WHERE reminder_time IS NOT NULL";
-            if (isset($this->search)) {
-                $search = $reminder->getSearch();
-                $query .= " AND (title LIKE '%$search%' OR content LIKE '%$search%' OR reminder_time LIKE '%$search%')";
-            }
-
             $stmt = $this->pdo->prepare($query);
 
             $stmt->execute();
-
-
             if (!$stmt) {
                 echo json_encode("Ошибка выполнения запроса: " . $this->pdo->error);
             } else {
@@ -103,6 +88,35 @@ class NoteRepository implements NoteRepositoryInterface{
             echo "Ошибка при чтение напоминаний: " . $e->getMessage();
             return false;
         }
+    }
+    public function search(AbstractNote $abstractNote)
+    {
+        $query = "SELECT * FROM note WHERE 1=1";
+    
+        $search = $abstractNote->getSearch();
+    
+        if ($abstractNote instanceof Reminder) {
+            $query .= " AND reminder_time IS NOT NULL";
+        } elseif ($abstractNote instanceof Note) {
+            $query .= " AND reminder_time IS NULL";
+        }
+    
+        if ($search) {
+            $query .= " AND (title LIKE :search OR content LIKE :search)";
+        }
+    
+        $stmt = $this->pdo->prepare($query);
+    
+        if (isset($search)) {
+            $searchParam = "%{$search}%"; 
+            $stmt->bindParam(':search', $searchParam, \PDO::PARAM_STR);
+        }
+    
+        $stmt->execute();
+    
+        $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    
+        return $notes;
     }
 
     public function delete(AbstractNote $abstractNote)

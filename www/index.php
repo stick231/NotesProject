@@ -1,4 +1,25 @@
-<!-- 
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Entities\Database;
+use Entities\Note;
+use Repository\NoteRepository;
+use Factory\NoteFactory;
+
+$abstractNote = new Note();
+$database = new Database();
+$noteRepository = new NoteRepository($database);
+$noteFactory = new NoteFactory();
+
+$note = $noteFactory->saveNote('note', 'Заголовок заметки', 'Содержимое заметки');
+// $noteRepository->create($note);
+
+$reminder = $noteFactory->saveNote('reminder', 'Заголовок напоминания', 'Содержимое напоминания', new DateTime('2024-08-15 10:00'));
+// $noteRepository->create($reminder);
+
+$noteRepository->readNote($abstractNote);
+
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -34,31 +55,14 @@
         </main>
     </div>
     <section id="notesSection">
-        <div id="noteList"></div>
+        <div id="noteList">
+        <?php
+?></div>
     </section>
     <section id="remindersSection">
         <div id="reminderList"></div>
         <div id="expiredReminderList"></div>
     </section>
-    <script src="script.js"></script>
+    <script src="script1.js"></script>
   </body>
-</html> -->
-
-<?php
-require_once __DIR__ . '/../vendor/autoload.php';
-
-use Entities\Database;
-use Repository\NoteRepository;
-use Factory\NoteFactory;
-
-$database = new Database();
-$noteRepository = new NoteRepository($database);
-$noteFactory = new NoteFactory();
-
-$note = $noteFactory->saveNote('note', 'Заголовок заметки', 'Содержимое заметки');
-$noteRepository->create($note);
-
-$reminder = $noteFactory->saveNote('reminder', 'Заголовок напоминания', 'Содержимое напоминания', new DateTime('2024-08-15 10:00'));
-$noteRepository->create($reminder);
-
-echo $noteRepository->readNote($note);
+</html>
