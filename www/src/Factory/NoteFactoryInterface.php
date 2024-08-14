@@ -4,5 +4,5 @@ namespace Factory;
 use Entities\AbstractNote;
 
 interface NoteFactoryInterface{
-    public function saveNote(string $type, $id, $search = '',  $title, $content, $ReminderTime = null): AbstractNote;
+    public function saveNote(string $type, $title, $content, $ReminderTime = null, $search = ''): AbstractNote;
 }

@@ -3,7 +3,7 @@
         'name' => 'stick231/notesproject',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '13ca5013c7e821aa164176d78f1858cbe780c0e6',
+        'reference' => 'aa69794f599993f7f2300e399f056a1025ab6532',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'stick231/notesproject' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '13ca5013c7e821aa164176d78f1858cbe780c0e6',
+            'reference' => 'aa69794f599993f7f2300e399f056a1025ab6532',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -45,7 +45,7 @@
 </html> -->
 
 <?php
-require_once __DIR__ . '/../vendor/autoload.php'; 
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Entities\Database;
 use Repository\NoteRepository;
@@ -55,10 +55,10 @@ $database = new Database();
 $noteRepository = new NoteRepository($database);
 $noteFactory = new NoteFactory();
 
-$note = $noteFactory->saveNote('note', null, '', 'Заголовок заметки', 'Содержимое заметки');
+$note = $noteFactory->saveNote('note', 'Заголовок заметки', 'Содержимое заметки');
 $noteRepository->create($note);
 
-$reminder = $noteFactory->saveNote('reminder', null, '', 'Заголовок напоминания', 'Содержимое напоминания', new DateTime('2024-08-15 10:00'));
+$reminder = $noteFactory->saveNote('reminder', 'Заголовок напоминания', 'Содержимое напоминания', new DateTime('2024-08-15 10:00'));
 $noteRepository->create($reminder);
 
 echo $noteRepository->readNote($note);

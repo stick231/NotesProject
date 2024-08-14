@@ -7,6 +7,7 @@ abstract class AbstractNote{
     protected $title;
     protected $content;
     private $created_at;
+    protected $type;
 
     
     public function __construct()
@@ -16,7 +17,7 @@ abstract class AbstractNote{
 
     public function getId()
     {
-.       return $this->id;
+        return $this->id;
     }
 
     public function getSearch()
@@ -39,13 +40,6 @@ abstract class AbstractNote{
         return $this->created_at;
     }
 
-    public function setId($id)
-    {
-        $new = clone $this;
-        $new->id = $id;
-        return $new;
-    }
-
     public function setSearch($search)
     {
         $new = clone $this;
@@ -64,6 +58,12 @@ abstract class AbstractNote{
     {
         $new = clone $this;
         $new->content = $content;
+        return $new;
+    }
+    public function setType(string $type)
+    {
+        $new = clone $this;
+        $new->type = $type;
         return $new;
     }
 

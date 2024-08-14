@@ -6,9 +6,9 @@
     },
     "autoload": {
         "psr-4": {
-            "Entities\\": "src/Entities/",
-            "Repositories\\": "src/Repositories/",
-            "Factory\\": "src/Factory/"
+            "Entities\\": "www/src/Entities/",
+            "Repository\\": "www/src/Repository/",
+            "Factory\\": "www/src/Factory/"
         }
     }
 }

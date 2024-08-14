@@ -14,28 +14,38 @@ class UserRepository implements UserRepositoryInterface{
 
     public function checkUser(User $user)
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([$user->getUsername()]);
-        $existingUser = $stmt->fetch();
-    
-        if ($existingUser) {
-            return false;
+        try{
+            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ?");
+            $stmt->execute([$user->getUsername()]);
+            $existingUser = $stmt->fetch();
+        
+            if ($existingUser) {
+                return false;
+            }
+            return true;
         }
-        return true;
+        catch(\PDOException $e){
+            "Ошибка при проверке пользователя: " . $e->getMessage();
+        }
     }
 
     public function register(User $user) 
     {
-        if($this->checkUser($user)){
-            $stmt = $this->pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-            $stmt->execute([$user->getUsername(), $user->getEmail(), $user->getPassword()]);
-        } 
-        return "Такой пользователь уже есть!";
+        try{
+            if($this->checkUser($user)){
+                $stmt = $this->pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+                $stmt->execute([$user->getUsername(), $user->getEmail(), $user->getPassword()]);
+            } 
+            return "Такой пользователь уже есть!";
+        }
+        catch(\PDOException $e){
+            "Ошибка при регистрации пользователя: " . $e->getMessage();
+        }
     }
 
     public function authenticate(User $user)
     {
-        {
+        try{
             $query = "SELECT * FROM users WHERE username = ?";
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(1, $user->getUsername(), \PDO::PARAM_STR);
@@ -60,18 +70,27 @@ class UserRepository implements UserRepositoryInterface{
                 return $warning;
             }
         }
+        catch(\PDOException $e){
+            "Ошибка при аунтентификации пользователя: " . $e->getMessage();
+        }
     }
 
     public function findByEmail($email) 
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $userData = $stmt->fetch();
-
-        if ($userData) {
-            return new User($userData['username'], $userData['email'], $userData['password']);
+        try{
+            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            $userData = $stmt->fetch();
+    
+            if ($userData) {
+                return new User($userData['username'], $userData['email'], $userData['password']);
+            }
+    
+            return null;
         }
-
-        return null;
+        catch(\PDOException $e){
+            echo "Ошибка поиске пользователя: " . $e->getMessage();
+            return false;
+        }
     }
 }
