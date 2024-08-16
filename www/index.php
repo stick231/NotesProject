@@ -11,13 +11,20 @@ $database = new Database();
 $noteRepository = new NoteRepository($database);
 $noteFactory = new NoteFactory();
 
-$note = $noteFactory->saveNote('note', 'Заголовок заметки', 'Содержимое заметки');
+// $note = $noteFactory->saveNote('note', 'Заголовок заметки', 'Содержимое заметки');
 // $noteRepository->create($note);
 
-$reminder = $noteFactory->saveNote('reminder', 'Заголовок напоминания', 'Содержимое напоминания', new DateTime('2024-08-15 10:00'));
+// $reminder = $noteFactory->saveNote('reminder', 'Заголовок напоминания', 'Содержимое напоминания', new DateTime('2024-08-15 10:00'));
 // $noteRepository->create($reminder);
+if( $_SERVER["REQUEST_METHOD"] === "GET"){
+    $notesJson = $noteRepository->readNote($abstractNote);
+}
 
-$noteRepository->readNote($abstractNote);
+
+if(isset($_POST["title"]) && isset($_POST['content']) && $_SERVER["REQUEST_METHOD"] === "POST"){
+    $note = $noteFactory->saveNote('note', $_POST["title"], $_POST['content']);
+    $noteRepository->create($note);
+}
 
 ?>
 <!DOCTYPE html>
@@ -55,14 +62,28 @@ $noteRepository->readNote($abstractNote);
         </main>
     </div>
     <section id="notesSection">
-        <div id="noteList">
-        <?php
+        <div id="noteList"><?php 
+        if (isset($notesJson)){
+            $notes = json_decode($notesJson);
+            foreach ($notes as $note) {
+                echo "<div class='note'>";
+                echo "<h3 class='h3Note'>" . $note->title . "</h3>";
+                echo "<p class='paragraphNote'>" . $note->content . "</p>";
+                $dateText = $note->last_update ? "Дата редактирования: " . htmlspecialchars($note->last_update) : "Дата создания: " . htmlspecialchars($note->time);
+                echo "<p class='dateElement'>$dateText</p>";
+                echo "<span class='noteListdel' data-note-id='" . $note->id . "'>🗑️</span>";
+                echo "<span class='changeButton' data-note-id='" . $note->id . "'>✏️</span>";
+                echo "</div>";
+            }
+            echo "привет";
+        }
 ?></div>
     </section>
     <section id="remindersSection">
         <div id="reminderList"></div>
         <div id="expiredReminderList"></div>
     </section>
-    <script src="script1.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>
+<?php

@@ -32,9 +32,18 @@ class NoteRepository implements NoteRepositoryInterface{
                 $reminderTime instanceof \DateTime ? $reminderTime->format('Y-m-d H:i:s') : $reminderTime
             );
             if ($stmt->execute($params)) {
-                return true;
+                $response = array(
+                    'success' => true,
+                    'message' => 'Заметка успешно создана'
+                );
+        
+                echo json_encode($response);
             } else {
-                return false;
+                $response = array(
+                    'success' => false,
+                    'message' => 'Ошибка при создании заметки: ' . $stmt->error
+                );
+                echo json_encode($response);
             }
         }
         catch (\PDOException $e) {
@@ -60,7 +69,8 @@ class NoteRepository implements NoteRepositoryInterface{
         $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         
         $response = $notes;
-        echo json_encode($response);
+        $responseJson =  json_encode($response);
+        return $responseJson;
         }
         catch (\PDOException $e) {
             echo "Ошибка при чтение заметки: " . $e->getMessage();

@@ -368,7 +368,7 @@ function createNote() {
     const form = document.getElementById("noteForm");
     const formData = new FormData(form);
 
-    fetch('create.php', {
+    fetch('index.php', {
         method: "POST",
         body: formData
     })
@@ -507,62 +507,18 @@ function resetForm() {
 }
 
 function readNote(searchData = "") {
-    let url = "read.php";
+    let url = "index.php";
 
     if (searchData) {
-        url += `?search=${encodeURIComponent(searchData)}`;
+        url += `?search=${encodeURIComponent(searchData)}&showNote`;
     }
 
     fetch(url, {
-        method: "GET"
+        method: "GET",
     })
     .then(response => response.json())
     .then(data => {
-        const noteList = document.getElementById("noteList");
-        noteList.innerHTML = "";
-
-        if (data.length === 0) {
-            const newTextNoNotes = document.createElement("h3");
-            newTextNoNotes.textContent = url !== "read.php" ? "Таких заметок нету. Но вы можете их сделать" : "Заметок нету. Но вы можете их сделать";
-            newTextNoNotes.classList.add("textNoNotes");
-            noteList.appendChild(newTextNoNotes);
-            return;
-        }
-
-        data.forEach(note => {
-            let noteDiv = document.createElement('div');
-            noteDiv.classList.add('note');
-
-            let dateNote = document.createElement('p');
-            dateNote.classList.add('dateElement');
-            dateNote.textContent = note.last_update ? `Дата редактирования: ${note.last_update}` : `дата создания: ${note.time}`;
-
-            let noteListdel = document.createElement('span');
-            noteListdel.classList.add("noteListdel");
-            noteListdel.textContent = '🗑️';
-            noteListdel.setAttribute("data-note-id", note.id);
-
-            let changeButtonNotes = document.createElement('span');
-            changeButtonNotes.classList.add("changeButton");
-            changeButtonNotes.textContent = "✏️";
-            changeButtonNotes.setAttribute("data-note-id", note.id);
-
-            let titleElement = document.createElement('h3');
-            titleElement.classList.add('h3Note');
-            titleElement.textContent = note.title;
-
-            let contentElement = document.createElement('p');
-            contentElement.classList.add('paragraphNote');
-            contentElement.textContent = note.content;
-
-            noteDiv.appendChild(titleElement);
-            noteDiv.appendChild(contentElement);
-            noteDiv.appendChild(dateNote);
-            noteDiv.appendChild(noteListdel);
-            noteDiv.appendChild(changeButtonNotes);
-
-            noteList.appendChild(noteDiv);
-        });
+        console.log(data)
     })
     .catch(error => {
         console.log("Произошла ошибка: " + error.message);
