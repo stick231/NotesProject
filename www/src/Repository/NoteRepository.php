@@ -91,7 +91,8 @@ class NoteRepository implements NoteRepositoryInterface{
                 $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
                 $response = $notes;
-                echo json_encode($response);
+                $responseJson = json_encode($response);
+                return $responseJson;
             }
         }
         catch (\PDOException $e) {

@@ -16,13 +16,12 @@ if (isset($_POST["login"]) && isset($_POST["password"])) {
     $password = $_POST["password"];
 
     $database = new DataBase();
-    $db = $database->getConnection(); 
 
     $user = (new User())
         ->setUsername($login)
         ->setPassword($password);
 
-    $userRepository = new UserRepository($db);
+    $userRepository = new UserRepository($database);
 
     if ($userRepository->authenticate($user)) {
         header("Location: index.php");
