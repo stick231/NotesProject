@@ -34,7 +34,7 @@ class NoteRepository implements NoteRepositoryInterface{
             if ($stmt->execute($params)) {
                 $response = array(
                     'success' => true,
-                    'message' => 'Заметка успешно создана'
+                    'message' => 'Заметка успешно создана' 
                 );
         
                 echo json_encode($response);
@@ -55,12 +55,22 @@ class NoteRepository implements NoteRepositoryInterface{
     public function readNote(Note $note)
     {   
         try{
-            if (isset($this->id)) {
+            if ($note->getId() !== null) {
                 $query = "SELECT * FROM note WHERE id = :id";
 
                 $stmt = $this->pdo->prepare($query);
                 $stmt->bindParam(':id', $note->getId(), \PDO::PARAM_INT);
-            } else {
+                exit;
+            } 
+            elseif($note->getSearch() !== null){
+                $query = "SELECT * FROM note WHERE reminder_time IS NULL AND (title LIKE :search OR content LIKE :search OR time LIKE :search)";
+
+                $stmt = $this->pdo->prepare($query);
+    
+                $searchParam = "%{$note->getSearch()}%";
+                $stmt->bindParam(':search', $searchParam, \PDO::PARAM_STR);
+            }
+            else {
                 $query = "SELECT * FROM note WHERE reminder_time IS NULL";
                 $stmt = $this->pdo->prepare($query);
             }
@@ -68,9 +78,7 @@ class NoteRepository implements NoteRepositoryInterface{
         $stmt->execute();
         $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         
-        $response = $notes;
-        $responseJson =  json_encode($response);
-        return $responseJson;
+        return json_encode(['success' => true, 'data' => $notes]);
         }
         catch (\PDOException $e) {
             echo "Ошибка при чтение заметки: " . $e->getMessage();
@@ -90,14 +98,13 @@ class NoteRepository implements NoteRepositoryInterface{
             } else {
                 $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-                $response = $notes;
-                $responseJson = json_encode($response);
-                return $responseJson;
+                echo json_encode(['success' => true, 'data' => $notes]);
             }
         }
         catch (\PDOException $e) {
             echo "Ошибка при чтение напоминаний: " . $e->getMessage();
             return false;
+            exit;
         }
     }
     public function search(AbstractNote $abstractNote)
@@ -139,7 +146,7 @@ class NoteRepository implements NoteRepositoryInterface{
             if ($stmt->execute()) {
                 $response = array(
                     'success' => true,
-                    'message' => 'Устройство успешно удалено'
+                    'message' => 'Устройство успешно удалено' 
                 );
             } else {
                 $response = array(

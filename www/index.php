@@ -15,32 +15,38 @@ $noteFactory = new NoteFactory();
 
 $notesJson = '';
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
-    $notesJson = $noteRepository->readNote($abstractNote);
-    $notes = json_decode($notesJson);
-    if (is_array($notes) && !empty($notes)) {
-        foreach ($notes as $note) {
-            // Проверяем, существует ли свойство last_update
-            if (isset($note->last_update)) {
-                // echo "last_update: " . $note->last_update . "<br>";
-            } else {
-                // echo "last_update не найдено.<br>";
-            }
-        }
-    } else {
-        echo "Нет доступных заметок.";
+    if(isset($_GET["search"])){
+        $noteWithSearch = (new Note())
+        ->setSearch($_GET["search"]);
+        $notesJson = $noteRepository->readNote($noteWithSearch);
     }
-}
-if($_SERVER["REQUEST_METHOD"] === 'GET'){
-    $reminderJson = $noteRepository->readReminders($reminderOb);
-    $reminders = json_decode($reminderJson);
+    else{
+        $notesJson = $noteRepository->readNote($abstractNote);
+    }
+    $notes = json_decode($notesJson);
 }
 
-if (isset($_POST["title"]) && isset($_POST['content']) && $_SERVER["REQUEST_METHOD"] === "POST") {
-    $note = $noteFactory->saveNote('note', $_POST["title"], $_POST['content']);
-    header('Content-Type: application/json');
-    $noteRepository->create($note);
-    exit; 
+if($_SERVER["REQUEST_METHOD"] === 'GET'){
+    // $reminderJson = $noteRepository->readReminders($reminderOb);
+    // $reminders = json_decode($reminderJson);
 }
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if(isset($_POST["title"]) && isset($_POST['content'])){
+        $note = $noteFactory->saveNote('note', $_POST["title"], $_POST['content']);
+        header('Content-Type: application/json');
+        $noteRepository->create($note);
+        exit; 
+    }
+
+    if (isset($_POST['note']) && isset($_POST["id"])) {
+        $noteWithId = (new Note())->setId($_POST['id']);
+        $noteRepository->delete($noteWithId);
+        exit; 
+    }
+}
+
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -81,7 +87,7 @@ if (isset($_POST["title"]) && isset($_POST['content']) && $_SERVER["REQUEST_METH
             <?php 
             if ($notesJson) {
                 $notes = json_decode($notesJson);
-                foreach ($notes as $note) {
+                foreach ($notes->data as $note) {
                     echo "<div class='note'>";
                     echo "<h3 class='h3Note'>" . htmlspecialchars($note->title) . "</h3>";
                     echo "<p class='paragraphNote'>" . htmlspecialchars($note->content) . "</p>";

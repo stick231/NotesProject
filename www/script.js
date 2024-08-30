@@ -273,3 +273,36 @@ document.addEventListener('click', function(event) {
         collapseInput();
     }
 });
+
+function deleteNote(idNote) {
+    fetch("index.php", {
+        method: "POST",
+        body: `id=${idNote}&note=delete`,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success){
+            alert(data.message);
+            window.location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.log("Произошла ошибка: " + error.message);
+    });
+}
+
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains("noteListdel")) {
+        const noteId = event.target.dataset.noteId;
+        deleteNote(noteId);
+    } else if (event.target.classList.contains('changeButton')) {
+        const noteId = event.target.dataset.noteId;
+        editNoteForm(noteId);
+        isEditing = false;
+    }
+});

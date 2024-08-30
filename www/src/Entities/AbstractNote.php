@@ -40,6 +40,13 @@ abstract class AbstractNote{
         return $this->created_at;
     }
 
+    public function setId($id)
+    {
+        $new = clone $this;
+        $new->id = $id;
+        return $new;
+    }
+
     public function setSearch($search)
     {
         $new = clone $this;

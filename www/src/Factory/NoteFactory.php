@@ -13,14 +13,12 @@ class NoteFactory implements NoteFactoryInterface{
                     ->setTitle($title)
                     ->setContent($content)
                     ->setReminderTime($ReminderTime)
-                    ->setType($type)
-                    ->setSearch($search);
+                    ->setType($type);
             case 'note':
                 return (new Note())
                     ->setTitle($title)
                     ->setContent($content)
-                    ->setType($type)
-                    ->setSearch($search);
+                    ->setType($type);
             default:
                 throw new \InvalidArgumentException("Unknown note type: $type");
             }
