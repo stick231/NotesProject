@@ -59,8 +59,8 @@ class NoteRepository implements NoteRepositoryInterface{
                 $query = "SELECT * FROM note WHERE id = :id";
 
                 $stmt = $this->pdo->prepare($query);
-                $stmt->bindParam(':id', $note->getId(), \PDO::PARAM_INT);
-                exit;
+                $idParam = $note->getId() ;
+                $stmt->bindParam(':id', $idParam, \PDO::PARAM_INT);
             } 
             elseif($note->getSearch() !== null){
                 $query = "SELECT * FROM note WHERE reminder_time IS NULL AND (title LIKE :search OR content LIKE :search OR time LIKE :search)";
@@ -78,7 +78,7 @@ class NoteRepository implements NoteRepositoryInterface{
         $stmt->execute();
         $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         
-        return json_encode(['success' => true, 'data' => $notes]);
+        return json_encode($notes);
         }
         catch (\PDOException $e) {
             echo "Ошибка при чтение заметки: " . $e->getMessage();
@@ -89,52 +89,36 @@ class NoteRepository implements NoteRepositoryInterface{
     public function readReminders(Reminder $reminder)
     {   
         try{
-            $query = "SELECT * FROM note WHERE reminder_time IS NOT NULL";
-            $stmt = $this->pdo->prepare($query);
+            if ($reminder->getId() !== null) {
+                $query = "SELECT * FROM note WHERE id = :id";
+
+                $stmt = $this->pdo->prepare($query);
+                $idParam = $reminder->getId() ;
+                $stmt->bindParam(':id', $idParam, \PDO::PARAM_INT);
+            } 
+            elseif($reminder->getSearch() !== null){
+                $query = "SELECT * FROM note WHERE reminder_time IS NOT NULL AND (title LIKE :search OR content LIKE :search OR reminder_time LIKE :search)";
+
+                $stmt = $this->pdo->prepare($query);
+    
+                $searchParam = "%{$reminder->getSearch()}%";
+                $stmt->bindParam(':search', $searchParam, \PDO::PARAM_STR);
+            }
+            else {
+                $query = "SELECT * FROM note WHERE reminder_time IS NOT NULL";
+                $stmt = $this->pdo->prepare($query);
+            }
 
             $stmt->execute();
-            if (!$stmt) {
-                echo json_encode("Ошибка выполнения запроса: " . $this->pdo->error);
-            } else {
-                $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-                echo json_encode(['success' => true, 'data' => $notes]);
-            }
+            $reminders = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            return json_encode($reminders);
         }
         catch (\PDOException $e) {
             echo "Ошибка при чтение напоминаний: " . $e->getMessage();
             return false;
             exit;
         }
-    }
-    public function search(AbstractNote $abstractNote)
-    {
-        $query = "SELECT * FROM note WHERE 1=1";
-    
-        $search = $abstractNote->getSearch();
-    
-        if ($abstractNote instanceof Reminder) {
-            $query .= " AND reminder_time IS NOT NULL";
-        } elseif ($abstractNote instanceof Note) {
-            $query .= " AND reminder_time IS NULL";
-        }
-    
-        if ($search) {
-            $query .= " AND (title LIKE :search OR content LIKE :search)";
-        }
-    
-        $stmt = $this->pdo->prepare($query);
-    
-        if (isset($search)) {
-            $searchParam = "%{$search}%"; 
-            $stmt->bindParam(':search', $searchParam, \PDO::PARAM_STR);
-        }
-    
-        $stmt->execute();
-    
-        $notes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    
-        return $notes;
     }
 
     public function delete(AbstractNote $abstractNote)
@@ -172,9 +156,11 @@ class NoteRepository implements NoteRepositoryInterface{
             if ($abstractNote instanceof Reminder) {
                 $reminderTime = $abstractNote->getReminderTime();
                 $reminderTimestamp = strtotime($reminderTime);
+                $expired = ($reminderTimestamp > $currentTime) ? 0 : 1; 
             }
-    
-            $expired = ($reminderTimestamp > $currentTime) ? 0 : 1; 
+            else{
+                $expired = 0;
+            }
     
             $query = "UPDATE note SET title = ?, content = ?, last_update = ?, reminder_time = ?, expired = ? WHERE id = ?";
             $stmt = $this->pdo->prepare($query);
@@ -194,9 +180,10 @@ class NoteRepository implements NoteRepositoryInterface{
             );
             echo json_encode($response);
             } else {
+                $errorInfo = $stmt->errorInfo();
                 $response = array(
                     'success' => false,
-                    'message' => 'Ошибка при обновлении устройства: '
+                    'message' => 'Ошибка при обновлении устройства: ' . $errorInfo[2]
                 );
                 echo json_encode($response);
             }
@@ -215,14 +202,15 @@ class NoteRepository implements NoteRepositoryInterface{
             }
 
             $expired = filter_var($expired, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-        
+            $idExpired = $reminder->getId();
+
             $query = "UPDATE note SET expired = ? WHERE id = ?";
 
 
             $stmt = $this->pdo->prepare($query);
 
             $stmt->bindParam(1, $expired, \PDO::PARAM_INT);
-            $stmt->bindParam(2, $reminder->getId(), \PDO::PARAM_INT);
+            $stmt->bindParam(2, $idExpired, \PDO::PARAM_INT);
 
             if ($stmt->execute()) {
                 $response = array(

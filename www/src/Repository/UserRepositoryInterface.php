@@ -8,5 +8,5 @@ interface UserRepositoryInterface{
     public function checkUser(User $user);
     public function register(User $user);
     public function authenticate(User $user);
-    public function findByEmail($email);
+    public function findByUsername($username);
 }

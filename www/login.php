@@ -4,6 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Entities\User;
 use Repository\UserRepository;
 use Entities\Database;
+session_start();
 
 setcookie("register", 'false', time() + 3600 * 24 * 30, "/");
 
@@ -23,13 +24,12 @@ if (isset($_POST["login"]) && isset($_POST["password"])) {
 
     $userRepository = new UserRepository($database);
 
-    if ($userRepository->authenticate($user)) {
+    if (!is_string($userRepository->authenticate($user))) {
         header("Location: index.php");
         exit; 
     } else {
         $response = $userRepository->authenticate($user);
     }
-
 } 
 
 

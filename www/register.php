@@ -9,20 +9,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
     $username = $_POST["username"];
     $password = $_POST["password"];
 
-    $database = new DataBase();
-    $db = $database->getConnection(); 
+    $database = new DataBase(); 
 
     $user = (new User())
-        ->setUsername($login)
+        ->setUsername($username)
         ->setPassword($password);
 
-    $userRepository = new UserRepository($db);
+    $userRepository = new UserRepository($database);
 
     if ($userRepository->register($user)) {
         header("Location: index.php");
         exit; 
     } else {
-        $response = $userRepository->register($user);
+        $response = "Такой пользователь уже есть!";
     }
 
 }

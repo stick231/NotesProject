@@ -33,10 +33,11 @@ class UserRepository implements UserRepositoryInterface{
     {
         try{
             if($this->checkUser($user)){
-                $stmt = $this->pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-                $stmt->execute([$user->getUsername(), $user->getEmail(), $user->getPassword()]);
+                $stmt = $this->pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+                $stmt->execute([$user->getUsername(), $user->getPassword()]);
+                return true;
             } 
-            return "Такой пользователь уже есть!";
+            return false;
         }
         catch(\PDOException $e){
             "Ошибка при регистрации пользователя: " . $e->getMessage();
@@ -75,15 +76,15 @@ class UserRepository implements UserRepositoryInterface{
         }
     }
 
-    public function findByEmail($email) 
+    public function findByUsername($username) 
     {
         try{
-            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
-            $stmt->execute([$email]);
+            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ?");
+            $stmt->execute([$username]);
             $userData = $stmt->fetch();
     
             if ($userData) {
-                return new User($userData['username'], $userData['email'], $userData['password']);
+                return new User($userData['username'], $userData['password']);
             }
     
             return null;

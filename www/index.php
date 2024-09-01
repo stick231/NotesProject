@@ -13,26 +13,56 @@ $database = new Database();
 $noteRepository = new NoteRepository($database);
 $noteFactory = new NoteFactory();
 
-$notesJson = '';
-if ($_SERVER["REQUEST_METHOD"] === "GET") {
-    if(isset($_GET["search"])){
-        $noteWithSearch = (new Note())
-        ->setSearch($_GET["search"]);
-        $notesJson = $noteRepository->readNote($noteWithSearch);
-    }
-    else{
-        $notesJson = $noteRepository->readNote($abstractNote);
-    }
-    $notes = json_decode($notesJson);
+session_start();
+
+if(!isset($_COOKIE['user_id'])){
+    header('Location: register.php');
+}
+elseif(!isset($_SESSION['login'])){
+    header('Location: login.php');
 }
 
-if($_SERVER["REQUEST_METHOD"] === 'GET'){
-    // $reminderJson = $noteRepository->readReminders($reminderOb);
-    // $reminders = json_decode($reminderJson);
+$currentUrl = $_SERVER['REQUEST_URI'];
+$notesJson = '';
+$reminderJson = '';
+
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if(strpos($currentUrl, '/note') !== false){
+        if(isset($_GET["editData"])){
+            $noteWithId = (new Note())->setId($_GET['editData']);
+            echo $noteRepository->readNote($noteWithId); 
+            exit;
+        }
+        elseif(isset($_GET['search'])){
+            $noteWithSearch = (new Note())->setSearch($_GET['search']);
+            echo $noteRepository->readNote($noteWithSearch); 
+            exit;    
+        }
+        elseif(isset($_GET['read']) && $_GET['read'] === 'note'){
+            echo $noteRepository->readNote($abstractNote); 
+            exit;
+        }
+    }
+    if(strpos($currentUrl, '/reminder') !== false){
+        if(isset($_GET['editData'])){
+            $reminderWithId = (new Reminder())->setId($_GET['editData']);
+            echo $noteRepository->readReminders($reminderWithId);
+            exit;
+        }
+        elseif(isset($_GET['search'])){
+            $noteWithSearch = (new Reminder())->setSearch($_GET['search']);
+            echo $noteRepository->readReminders($noteWithSearch); 
+            exit;    
+        }
+        elseif(isset($_GET['read']) && $_GET['read'] === 'reminder'){
+            echo $noteRepository->readReminders($reminderOb); 
+            exit;
+        }
+    }
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if(isset($_POST["title"]) && isset($_POST['content'])){
+    if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['createNote'])){
         $note = $noteFactory->saveNote('note', $_POST["title"], $_POST['content']);
         header('Content-Type: application/json');
         $noteRepository->create($note);
@@ -44,8 +74,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $noteRepository->delete($noteWithId);
         exit; 
     }
-}
 
+    if(isset($_POST['expired']) && isset($_POST['id'])){
+        $reminderCheck = (new Reminder())->setExpired($_POST['expired'])->setId($_POST['id']);
+        $noteRepository->markExpired($reminderCheck);
+        exit;
+    }
+
+    if(isset($_POST['updateNote']) && isset($_POST["title"]) && isset($_POST['content'])) {
+        $noteUpdate = null;
+    
+        if(isset($_POST['reminder_time']) && $_POST['reminder_time'] !== null ) {
+            $noteUpdate = (new Reminder())
+                ->setId($_POST['id'])
+                ->setTitle($_POST['title'])
+                ->setContent($_POST['content'])
+                ->setReminderTime($_POST["reminder_time"]);
+        } else {
+            $noteUpdate = (new Note())
+                ->setId($_POST['id'])
+                ->setTitle($_POST['title'])
+                ->setContent($_POST['content']);
+        }
+        $noteRepository->update($noteUpdate);
+        exit;
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -69,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <div class="nav-icons">
             <div data-icon="notes"><span><img id="icon-note" src="png/icons8-notes-48.png" alt=""><p class="text">Заметки</p></span></div>
             <div data-icon="reminders"><span><img src="png/icons8-reminder-241.png" alt=""><p class="text">Напоминания</p></span></div>
-            <div data-icon="settings"><span><img src="png/icons8-settings-48.png" alt=""><p class="text">Настройки</p></span></div> 
+            <!-- <div data-icon="settings"><span><img src="png/icons8-settings-48.png" alt=""><p class="text">Настройки</p></span></div>  -->
         </div>
     </div>
     <div id="container">
@@ -84,47 +138,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
     <section id="notesSection">
         <div id="noteList">
-            <?php 
-            if ($notesJson) {
-                $notes = json_decode($notesJson);
-                foreach ($notes->data as $note) {
-                    echo "<div class='note'>";
-                    echo "<h3 class='h3Note'>" . htmlspecialchars($note->title) . "</h3>";
-                    echo "<p class='paragraphNote'>" . htmlspecialchars($note->content) . "</p>";
-                    if ($note->last_update) {
-                        $dateNote = "Дата редактирования: " . $note->last_update;
-                    } else {
-                        $dateNote = "Дата создания: " . $note->time;
-                    }
-                    echo "<p class='dateElement'> $dateNote </p>";
-                    echo "<span class='noteListdel' data-note-id='" . htmlspecialchars($note->id) . "'>🗑️</span>";
-                    echo "<span class='changeButton' data-note-id='" . htmlspecialchars($note->id) . "'>✏️</span>";
-                    echo "</div>";
-                }
-            }
-            ?>
         </div>
     </section>
     <section id="remindersSection">
-        <div id="reminderList"><?php 
-            if ($reminders) {
-                foreach ($reminders as $reminder) {
-                    echo "<div class='note'>";
-                    echo "<h3 class='h3Note'>" . htmlspecialchars($reminder->title) . "</h3>";
-                    echo "<p class='paragraphNote'>" . htmlspecialchars($reminder->content) . "</p>";
-                    echo "<p class='dateElement'>Напоминание на: $reminder->reminder_time</p>";
-                    if ($reminder->last_update) {
-                        $dateNote = "Дата редактирования: " . $reminder->last_update;
-                    } else {
-                        $dateNote = "Дата создания: " . $reminder->time;
-                    }
-                    echo "<p class='dateElement'> $dateNote </p>";
-                    echo "<span class='noteListdel' data-note-id='" . htmlspecialchars($reminder->id) . "'>🗑️</span>";
-                    echo "<span class='changeButton' data-note-id='" . htmlspecialchars($reminder->id) . "'>✏️</span>";
-                    echo "</div>";
-                }
-            }
-            ?></div>
+        <div id="reminderList"></div>
         <div id="expiredReminderList"></div>
     </section>
     <script src="script.js"></script>
