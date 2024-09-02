@@ -7,20 +7,18 @@ use Repository\NoteRepository;
 use Factory\NoteFactory;
 use Entities\Reminder;
 
-$abstractNote = new Note();
-$reminderOb = new Reminder();
+// if(!isset($_COOKIE['user_id'])){
+//     header('Location: register.php');
+// }
+// elseif(!isset($_SESSION['login'])){
+//     header('Location: login.php');
+// }// реализация перехода на сайты, сделать маршутизацию
+
 $database = new Database();
 $noteRepository = new NoteRepository($database);
 $noteFactory = new NoteFactory();
 
 session_start();
-
-if(!isset($_COOKIE['user_id'])){
-    header('Location: register.php');
-}
-elseif(!isset($_SESSION['login'])){
-    header('Location: login.php');
-}
 
 $currentUrl = $_SERVER['REQUEST_URI'];
 $notesJson = '';
@@ -39,7 +37,8 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             exit;    
         }
         elseif(isset($_GET['read']) && $_GET['read'] === 'note'){
-            echo $noteRepository->readNote($abstractNote); 
+            $note = new Note();
+            echo $noteRepository->readNote($note); 
             exit;
         }
     }
@@ -55,6 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             exit;    
         }
         elseif(isset($_GET['read']) && $_GET['read'] === 'reminder'){
+            $reminderOb = new Reminder();
             echo $noteRepository->readReminders($reminderOb); 
             exit;
         }
@@ -66,6 +66,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $note = $noteFactory->saveNote('note', $_POST["title"], $_POST['content']);
         header('Content-Type: application/json');
         $noteRepository->create($note);
+        exit; 
+    }
+    if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['reminder_time'])){
+        $reminder = $noteFactory->saveNote('reminder', $_POST["title"], $_POST['content'], $_POST['reminder_time']);
+        header('Content-Type: application/json');
+        $noteRepository->create($reminder);
         exit; 
     }
 

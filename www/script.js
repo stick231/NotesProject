@@ -422,7 +422,9 @@ let isEditing = true;
 function createNote() {
     const form = document.getElementById("noteForm");
     const formData = new FormData(form);
-    formData.append('createNote', 'true')
+    if (!formData.has('reminder_time')) {
+        formData.append('createNote', 'true');
+    }
 
     fetch('index.php', {
         method: "POST",
