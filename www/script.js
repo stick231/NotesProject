@@ -1,15 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     if (!localStorage.getItem('activeIcon')) {
         localStorage.setItem('activeIcon', 'notes');
+
+        window.location.href = '/note';
     }
 
     const activeIcon = localStorage.getItem('activeIcon');
     const notesSection = document.getElementById('notesSection');
     const remindersSection = document.getElementById('remindersSection');
     const reminderTimeInput = document.getElementById('reminderTime');
-    const date_inp_container = document.getElementById("date-input-container")
+    const date_inp_container = document.querySelector("#data-input-container")
+
+    const currentUrl = window.location.pathname;
 
     if (activeIcon === "notes") {
+        if(currentUrl !== '/note'){
+            window.location.href = '/note';
+        }
         readNote();
         notesSection.style.display = 'grid';
         remindersSection.style.display = 'none';
@@ -17,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
             date_inp_container.removeChild(reminderTimeInput);
         }
     } else if (activeIcon === "reminders") {
+        if(currentUrl !== '/reminder'){
+            window.location.href = '/reminder';
+        }
         readReminders();
         notesSection.style.display = 'none';
         remindersSection.style.display = 'grid';
@@ -30,8 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    console.log(activeIcon);
-    checkUser();
     collapseInput();
 
     const navIcons = document.querySelectorAll('.nav-icons div');
@@ -49,93 +57,102 @@ function handleIconClick() {
     this.classList.add('active');
     localStorage.setItem('activeIcon', this.getAttribute('data-icon'));
 
+    let url;
+    if (this.getAttribute('data-icon') === "notes") {
+        url = '/note'; 
+    } else if (this.getAttribute('data-icon') === "reminders") {
+        url = '/reminder'; 
+    }
+
+    window.location.href = url;
+
     const notesSection = document.getElementById('notesSection');
     const remindersSection = document.getElementById('remindersSection');
-    const noteForm = document.getElementById('noteForm');
-    const reminderTimeInput = document.getElementById('reminderTime');
-    const date_inp_container = document.getElementById("date-input-container")
+    const date_inp_container = document.getElementById("date-input-container");
+
+    let reminderTimeInput = document.getElementById('reminderTime');
 
     if (this.getAttribute('data-icon') === "notes") {
-        notesSection.style.display = 'grid';
-        remindersSection.style.display = 'none';
-        document.getElementById("search").value = ""
+        if (notesSection) {
+            notesSection.style.display = 'grid';
+        } else {
+            console.error('Секция заметок не найдена.');
+        }
+
+        if (remindersSection) {
+            remindersSection.style.display = 'none';
+        } else {
+            console.error('Секция напоминаний не найдена.');
+        }
+
+        document.getElementById("search").value = "";
+
         if (reminderTimeInput && reminderTimeInput.parentNode) {
             date_inp_container.removeChild(reminderTimeInput);
         }
+
         readNote();
+
     } else if (this.getAttribute('data-icon') === "reminders") {
-        notesSection.style.display = 'none';
-        remindersSection.style.display = 'grid';
+        if (notesSection) {
+            notesSection.style.display = 'none';
+        } else {
+            console.error('Секция заметок не найдена.');
+        }
+
+        if (remindersSection) {
+            remindersSection.style.display = 'grid';
+        } else {
+            console.error('Секция напоминаний не найдена.');
+        }
+
+        document.getElementById("search").value = "";
+
         if (!reminderTimeInput || !reminderTimeInput.parentNode) {
             const newReminderTime = document.createElement('input');
             newReminderTime.id = 'reminderTime';
             newReminderTime.type = 'datetime-local';
             newReminderTime.name = 'reminder_time';
             newReminderTime.placeholder = 'Время напоминания';
-            date_inp_container.appendChild(newReminderTime)
+
+            if (date_inp_container) {
+                date_inp_container.appendChild(newReminderTime); 
+            } else {
+                console.error('Контейнер для ввода времени не найден.');
+            }
         }
-        document.getElementById("search").value = ""
+
         readReminders();
     }
 }
 
-function scheduleReminder(note) {
-    const reminderTime = new Date(note.reminder_time).getTime();
-    const currentTime = new Date().getTime();
-    const delay = reminderTime - currentTime;
 
-    if (delay > 0) {
-        setTimeout(() => {
-            sendReminder(note);
-        }, delay);
-        fetch("expired.php", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `id=${note.id}&expired=false`
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                console.log(data)
-            } 
-            else {
-            }
-        })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-        });
-    } else {
-        console.log("Отправляем запрос на expired.php с id:", note.id);
-        fetch("expired.php", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `id=${note.id}&expired=true`
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-            } 
-            else {
-            }
-        })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-        });
+document.querySelectorAll('.nav-icons div').forEach(icon => {
+    icon.addEventListener('click', handleIconClick);
+});
+
+let audio;
+
+function createNotification(note) {
+    const options = {
+        body: note.content,
+        icon: 'png/icons8-reminder-241.png', 
+        vibrate: [200, 100, 200], 
+        badge: 'png/icons8-notes-48.png', 
+        tag: 'reminder',
+        renotify: true,
+        requireInteraction: true 
+    };
+
+    const notification = new Notification(note.title, options);
+
+    if (!audio) {
+        audio = new Audio('sound/message.mp3');
     }
+
+    setTimeout(() => {
+        audio.play().catch(error => console.error('Error playing sound:', error));
+    }, 100); 
 }
 
 function sendReminder(note) {
@@ -160,37 +177,83 @@ function sendReminder(note) {
     }, 1000);
 }
 
-function createNotification(note) {
-    const options = {
-        body: note.content,
-        icon: 'png/icons8-reminder-241.png', 
-        sound: 'sound/message.mp3',
-        vibrate: [200, 100, 200], 
-        badge: 'png/icons8-notes-48.png', 
-        tag: 'reminder',
-        renotify: true,
-        requireInteraction: true 
-    };
+function scheduleReminder(note) {
+    const reminderTime = new Date(note.reminder_time).getTime();
+    const currentTime = new Date().getTime();
+    const delay = reminderTime - currentTime;
 
-    const notification = new Notification(note.title, options);
-
-    if (options.sound) {
-        const audio = new Audio(options.sound);
-        audio.play().catch(error => console.error('Error playing sound:', error));
+    if (delay > 0) {
+        setTimeout(() => {
+            sendReminder(note);
+        }, delay);
+        fetch("index.php", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `id=${note.id}&expired=false`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                console.log(data)
+            } 
+            else {
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+    } else {
+        fetch("index.php", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `id=${note.id}&expired=true`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+            } 
+            else {
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
     }
 }
 
 function readReminders(searchData = "") {
-    let sql = "read_reminders.php";
-
-    if(searchData){
-        sql += `?search=${encodeURIComponent(searchData)}`
+    let sql = "/reminder?read=reminder";
+  
+    if (searchData) {
+      sql += `&search=${encodeURIComponent(searchData)}`;
     }
-
+  
     fetch(sql, {
-        method: "GET"
+    method: "GET",
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Сетевая ошибка: ' + response.statusText);
+        }
+        return response.json(); 
+    })
     .then(data => {
         const reminderList = document.getElementById("reminderList");
         const expiredReminderList = document.getElementById("expiredReminderList");
@@ -264,266 +327,32 @@ function readReminders(searchData = "") {
     });
 }
 
-function checkUser() {
-    fetch("checkuser.php")
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log(data);
-        if (data.register) {
-            console.log("User is registered");
+function readNote(searchData = "") {
+    let url = "/note?read=note";
 
-            const el = document.getElementById("header");
-            if (el) {
-                const imgEl = el.querySelector("img");
-                if (imgEl) {
-                    const LoginEl = document.createElement("p");
-                    LoginEl.textContent = data.register_username ? data.register_username : data.login;
-                    el.insertBefore(LoginEl, imgEl.nextSibling);
-                } else {
-                    console.error("No img element found in header");
-                }
-            } else {
-                console.error("Header element not found");
-            }
-
-            if (!data.authentication && !data.just_registered) {
-                window.location = "login.php";
-            }
-        } else {
-            console.log("User is not registered");
-            window.location = "register.php";
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
-
-document.getElementById("user-img").addEventListener("click", (event) => {
-    const btnBack = document.getElementById("btn-back");
-    btnBack.classList.add("visible");
-});
-
-document.addEventListener("click", (event) => {
-    const userImg = document.getElementById("user-img");
-    const btnBack = document.getElementById("btn-back");
-
-    if (!userImg.contains(event.target) && !btnBack.contains(event.target)) {
-        btnBack.classList.remove("visible");
+    if(searchData){
+        url += `&search=${encodeURIComponent(searchData)}`
     }
-});
 
-document.getElementById("btn-back").addEventListener("click", () => {
-    fetch("back_user.php", {
-        method: "POST"
-    })
-    .then(() => {
-        window.location.reload();
-    });
-});
-
-let noteId;
-let isEditing = true;
-
-document.getElementById('submitBut').addEventListener('click', (event) => {
-    event.preventDefault();
-    if (isEditing) {
-        if (checkInp()) {
-            createNote();
-            noteId = null;
-        }
-    } else {
-        if (checkInp()) {
-            updateNote(noteId);
-            isEditing = true;
-            resetForm();
-        }
-    }
-});
-
-function checkInp() {
-    let title = document.getElementById('TitleInp').value;
-    let content = document.getElementById('NoteInp').value;
-
-    if (title.trim() === "" || content.trim() === "") {
-        alert("Заголовок и содержимое не могут быть пустыми");
-        return false;
-    }
-    if(document.getElementById("reminderTime")){
-        let reminder_time = document.getElementById("reminderTime").value
-        if(reminder_time.trim() === ""){
-            alert("Введите время напоминания");
-            return false
-        }
-    }
-    return true;
-}
-
-function createNote() {
-    const form = document.getElementById("noteForm");
-    const formData = new FormData(form);
-
-    fetch('create.php', {
-        method: "POST",
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Ошибка сети: ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            if(localStorage.getItem('activeIcon') === "notes"){
-                readNote();
-            }
-            else{
-                readReminders();
-            }
-            resetForm();
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        console.log("Произошла ошибка: " + error.message);
-        alert("Произошла ошибка: " + error.message);
-    });
-}
-
-document.addEventListener('click', function(event) {
-    if (event.target.classList.contains("noteListdel")) {
-        const noteId = event.target.dataset.noteId;
-        deleteNote(noteId);
-    } else if (event.target.classList.contains('changeButton')) {
-        const noteId = event.target.dataset.noteId;
-        editNoteForm(noteId);
-        isEditing = false;
-    }
-});
-
-function deleteNote(idNote) {
-    fetch("delete.php", {
-        method: "POST",
-        body: `id=${idNote}`,
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            if(localStorage.getItem('activeIcon') === "notes"){
-                readNote();
-            }
-            else{
-                readReminders()
-            }
-            alert(data.message);
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        console.log("Произошла ошибка: " + error.message);
-    });
-}
-
-function editNoteForm(idNote) {
-    fetch(`read.php?id=${idNote}`, {
+    fetch(url, {
         method: "GET",
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.length > 0) { 
-            expandInput();
-
-            const titleInp = document.getElementById("TitleInp");
-            const contentInp = document.getElementById("NoteInp");
-
-            titleInp.value = data[0].title; 
-            contentInp.value = data[0].content; 
-
-            const buttonSubmit = document.getElementById("submitBut");
-            buttonSubmit.textContent = "Сохранить";
-
-            const header = document.getElementById('header');
-            header.scrollIntoView({ behavior: 'smooth' });
-
-            noteId = idNote;
-        } else {
-            console.error("No note found with the given ID.");
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Сетевая ошибка");
         }
+        return response.json();
     })
-    .catch(error => {
-        console.error('Error fetching note:', error);
-    });
-}
-
-function updateNote(idNote) {
-    const Form = document.getElementById("noteForm");
-    const formData = new FormData(Form);
-    formData.append('id', idNote);
-
-    fetch(`update.php`, {
-        method: "POST",
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            if(localStorage.getItem('activeIcon') === "notes"){
-                readNote();
-            }
-            else{
-                readReminders()
-            }
-            resetForm();
-        } else {
-            alert(data.message);
-        }
-    });
-}
-
-function resetForm() {
-    const titleInp = document.getElementById("TitleInp");
-    const contentInp = document.getElementById("NoteInp");
-    const buttonSubmit = document.getElementById("submitBut");
-
-    titleInp.value = "";
-    contentInp.value = "";
-    buttonSubmit.textContent = "Создать";
-}
-
-function readNote(searchData = "") {
-    let url = "read.php";
-
-    if (searchData) {
-        url += `?search=${encodeURIComponent(searchData)}`;
-    }
-
-    fetch(url, {
-        method: "GET"
-    })
-    .then(response => response.json())
     .then(data => {
         const noteList = document.getElementById("noteList");
         noteList.innerHTML = "";
 
         if (data.length === 0) {
             const newTextNoNotes = document.createElement("h3");
-            newTextNoNotes.textContent = url !== "read.php" ? "Таких заметок нету. Но вы можете их сделать" : "Заметок нету. Но вы можете их сделать";
+            newTextNoNotes.textContent = url !== "index.php" ? "Таких заметок нету. Но вы можете их сделать" : "Заметок нету. Но вы можете их сделать";
             newTextNoNotes.classList.add("textNoNotes");
             noteList.appendChild(newTextNoNotes);
             return;
@@ -569,21 +398,78 @@ function readNote(searchData = "") {
     });
 }
 
-document.getElementById('NoteInp').addEventListener('focus', function() {
-    expandInput();
-});
+function checkInp() {
+    let title = document.getElementById('TitleInp').value;
+    let content = document.getElementById('NoteInp').value;
 
-document.getElementById('submitBut').addEventListener('click', function(event) {
-    event.preventDefault();
-    collapseInput();
-});
-
-document.addEventListener('click', function(event) {
-    const inputContainer = document.querySelector('#noteForm');
-    if (!inputContainer.contains(event.target)) {
-        collapseInput();
+    if (title.trim() === "" || content.trim() === "") {
+        alert("Заголовок и содержимое не могут быть пустыми");
+        return false;
     }
-});
+    if(document.getElementById("reminderTime")){
+        let reminder_time = document.getElementById("reminderTime").value
+        if(reminder_time.trim() === ""){
+            alert("Введите время напоминания");
+            return false
+        }
+    }
+    return true;
+}
+
+let noteId;
+let isEditing = true;
+
+function createNote() {
+    const form = document.getElementById("noteForm");
+    const formData = new FormData(form);
+    if (!formData.has('reminder_time')) {
+        formData.append('createNote', 'true');
+    }
+
+    fetch('index.php', {
+        method: "POST",
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка сети: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            if(localStorage.getItem('activeIcon') === "notes"){
+                readNote();
+            }
+            else{
+                readReminders();
+            }
+            resetForm();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.log("Произошла ошибка: " + error.message);
+        alert("Произошла ошибка: " + error.message);
+    });
+}
+document.getElementById('submitBut').addEventListener('click', (event) => {
+    event.preventDefault();
+    if (isEditing) {
+        if (checkInp()) {
+            createNote();
+            noteId = null;
+        }
+    } else {
+        if (checkInp()) {
+            updateNote(noteId);
+            isEditing = true;
+            resetForm();
+        }
+    }
+})
 
 function expandInput() {
     document.getElementById('TitleInp').style.display = 'block';
@@ -594,7 +480,8 @@ function expandInput() {
     }
 }
 
-function collapseInput() {
+function collapseInput() 
+{
     document.getElementById('TitleInp').value = '';
     document.getElementById('NoteInp').value = '';
     document.getElementById("submitBut").style.display = "none";
@@ -608,9 +495,148 @@ const searchInp = document.getElementById("search");
 
 searchInp.addEventListener("input", () => {
     if(localStorage.getItem('activeIcon') === "notes"){
+        console.log(searchInp.value)
         readNote(searchInp.value);
     }
     else{
         readReminders(searchInp.value)
+        console.log(searchInp.value)
+    }
+});
+
+document.getElementById('NoteInp').addEventListener('focus', function() {
+    expandInput();
+});
+
+document.getElementById('submitBut').addEventListener('click', function(event) {
+    event.preventDefault();
+    collapseInput();
+});
+
+document.addEventListener('click', function(event) {
+    const isChangeButton = event.target.matches('.changeButton');
+
+    if(isChangeButton){
+        const inputContainer = document.querySelector('#noteForm');
+        if (!inputContainer.contains(event.target) && !isChangeButton) {
+            collapseInput();
+        }
+    }
+});
+
+function deleteNote(idNote) {
+    fetch("index.php", {
+        method: "POST",
+        body: `id=${idNote}&note=delete`,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success){
+            if(localStorage.getItem('activeIcon') === "notes"){
+                readNote();
+            }
+            else{
+                readReminders()
+            }
+            alert(data.message);
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.log("Произошла ошибка: " + error.message);
+    });
+}
+
+function editNoteForm(idNote) {
+    let url = '/note'
+
+    fetch(`${url}?editData=${idNote}`, {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        if (data.length > 0) {
+            expandInput();
+
+            const titleInp = document.getElementById("TitleInp");
+            const contentInp = document.getElementById("NoteInp");
+
+            titleInp.value = data[0].title; 
+            contentInp.value = data[0].content; 
+
+            const buttonSubmit = document.getElementById("submitBut");
+            buttonSubmit.textContent = "Сохранить";
+
+            const header = document.getElementById('header');
+            header.scrollIntoView({ behavior: 'smooth' });
+
+            noteId = idNote;
+        } else {
+            console.error("No note found with the given ID.");
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching note:', error);
+    });
+}
+
+function updateNote(idNote) {
+    const Form = document.getElementById("noteForm");
+    const formData = new FormData(Form);
+    formData.append('id', idNote);
+    formData.append('updateNote', 'true')
+
+    fetch(`index.php`, {
+        method: "POST",
+        body: formData 
+    })
+    .then(response => response.json()) 
+    .then(data => {
+        console.log(data)
+        if (data.success) {
+            alert(data.message);
+            if (localStorage.getItem('activeIcon') === "notes") {
+                readNote();
+            } else {
+                readReminders();
+            }
+            resetForm();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при обновлении заметки.');
+    });
+}
+
+function resetForm() {
+    const titleInp = document.getElementById("TitleInp");
+    const contentInp = document.getElementById("NoteInp");
+    const buttonSubmit = document.getElementById("submitBut");
+
+    titleInp.value = "";
+    contentInp.value = "";
+    buttonSubmit.textContent = "Создать";
+}
+
+
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains("noteListdel")) {
+        const noteId = event.target.dataset.noteId;
+        deleteNote(noteId);
+    } else if (event.target.classList.contains('changeButton')) {
+        const noteId = event.target.dataset.noteId;
+        editNoteForm(noteId);
+        isEditing = false;
     }
 });

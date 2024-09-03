@@ -1,0 +1,14 @@
+{
+    "name": "stick231/notesproject",
+    "description": "Проект заметок",
+    "require": {
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Entities\\": "www/src/Entities/",
+            "Repository\\": "www/src/Repository/",
+            "Factory\\": "www/src/Factory/"
+        }
+    }
+}

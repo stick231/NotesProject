@@ -1,20 +1,29 @@
 <?php
-require_once 'class/db.php';
-require_once 'class/auth.php';
+require_once __DIR__ . '/../vendor/autoload.php'; 
+
+use Entities\User;
+use Repository\UserRepository;
+use Entities\Database;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
     $username = $_POST["username"];
     $password = $_POST["password"];
 
-    $database = new DataBase();
-    $db = $database->getConnection();
+    $database = new DataBase(); 
 
-    $register = new UserRegistration($db);
+    $user = (new User())
+        ->setUsername($username)
+        ->setPassword($password);
 
-    $register->setUsername($username);
-    $register->setPassword($password);
+    $userRepository = new UserRepository($database);
 
-    $response = $register->registerNewUser();
+    if ($userRepository->register($user)) {
+        header("Location: index.php");
+        exit; 
+    } else {
+        $response = "Такой пользователь уже есть!";
+    }
+
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
@@ -22,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     }
 } else {
     if (isset($_COOKIE["user_id"]) && $_COOKIE["register"] === "true") {
-        header("Location: index.html");
+        header("Location: index.php");
         exit();
     }
 }
