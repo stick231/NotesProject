@@ -1,110 +1,145 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+session_start();
 
 use Entities\Database;
 use Entities\Note;
 use Repository\NoteRepository;
 use Factory\NoteFactory;
 use Entities\Reminder;
+use Phroute\Phroute\RouteCollector;
+use Phroute\Phroute\Dispatcher;
 
-// if(!isset($_COOKIE['user_id'])){
-//     header('Location: register.php');
-// }
-// elseif(!isset($_SESSION['login'])){
-//     header('Location: login.php');
-// }// реализация перехода на сайты, сделать маршутизацию
+$router = new RouteCollector();
+
+//сделать регистрацию
 
 $database = new Database();
 $noteRepository = new NoteRepository($database);
+
 $noteFactory = new NoteFactory();
 
-session_start();
+$router->get('/', function() use ($noteRepository) {
+});
 
-$currentUrl = $_SERVER['REQUEST_URI'];
-$notesJson = '';
-$reminderJson = '';
+$router->get('/api/notes', function() use ($noteRepository) {
+    if (isset($_GET['search'])) {
+        $noteWithSearch = (new Note())->setSearch($_GET['search']);
+        echo $noteRepository->readNote($noteWithSearch);
+        exit;    
+    }
+    $note = new Note();
+    echo $noteRepository->readNote($note);
+    exit;
+});
 
-if ($_SERVER["REQUEST_METHOD"] === "GET") {
-    if(strpos($currentUrl, '/note') !== false){
-        if(isset($_GET["editData"])){
-            $noteWithId = (new Note())->setId($_GET['editData']);
-            echo $noteRepository->readNote($noteWithId); 
+$router->get('/api/reminder', function() use ($noteRepository) {
+    if (isset($_GET['search'])) {
+        $reminderWithSearch = (new Reminder())->setSearch($_GET['search']);
+        echo $noteRepository->readReminders($reminderWithSearch);
+        exit;    
+    }
+    $reminder = new Reminder();
+    echo $noteRepository->readReminders($reminder);
+    exit;
+});
+
+$router->post('/', function() use ($noteRepository, $noteFactory) {
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['createNote'])){
+            $note = $noteFactory->saveNote('note', $_POST["title"], $_POST['content']);
+            echo $noteRepository->create($note);
+            exit; 
+        }
+        
+        if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['reminder_time']) && isset($_POST['createReminder'])){
+            $reminder = $noteFactory->saveNote('reminder', $_POST["title"], $_POST['content'], $_POST['reminder_time']);
+            echo $noteRepository->create($reminder);
+            exit; 
+        }
+
+        if (isset($_POST['note']) && isset($_POST["id"])) {
+            $noteWithId = (new Note())->setId($_POST['id']);
+            echo $noteRepository->delete($noteWithId);
             exit;
         }
-        elseif(isset($_GET['search'])){
-            $noteWithSearch = (new Note())->setSearch($_GET['search']);
-            echo $noteRepository->readNote($noteWithSearch); 
-            exit;    
+
+        if(isset($_POST['expired']) && isset($_POST['id'])){
+            $reminderCheck = (new Reminder())->setExpired($_POST['expired'])->setId($_POST['id']);
+            echo $noteRepository->markExpired($reminderCheck);
+            exit;
         }
-        elseif(isset($_GET['read']) && $_GET['read'] === 'note'){
-            $note = new Note();
-            echo $noteRepository->readNote($note); 
+
+        if(isset($_POST['updateNote']) && isset($_POST["title"]) && isset($_POST['content'])) {
+            $noteUpdate = null;
+        
+            if(isset($_POST['reminder_time']) && $_POST['reminder_time'] !== null ) {
+                $noteUpdate = (new Reminder())
+                    ->setId($_POST['id'])
+                    ->setTitle($_POST['title'])
+                    ->setContent($_POST['content'])
+                    ->setReminderTime($_POST["reminder_time"]);
+            } else {
+                $noteUpdate = (new Note())
+                    ->setId($_POST['id'])
+                    ->setTitle($_POST['title'])
+                    ->setContent($_POST['content']);
+            }
+            echo $noteRepository->update($noteUpdate);
             exit;
         }
     }
-    if(strpos($currentUrl, '/reminder') !== false){
-        if(isset($_GET['editData'])){
-            $reminderWithId = (new Reminder())->setId($_GET['editData']);
-            echo $noteRepository->readReminders($reminderWithId);
-            exit;
-        }
-        elseif(isset($_GET['search'])){
-            $noteWithSearch = (new Reminder())->setSearch($_GET['search']);
-            echo $noteRepository->readReminders($noteWithSearch); 
-            exit;    
-        }
-        elseif(isset($_GET['read']) && $_GET['read'] === 'reminder'){
-            $reminderOb = new Reminder();
-            echo $noteRepository->readReminders($reminderOb); 
-            exit;
-        }
-    }
-}
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['createNote'])){
-        $note = $noteFactory->saveNote('note', $_POST["title"], $_POST['content']);
-        header('Content-Type: application/json');
-        $noteRepository->create($note);
-        exit; 
-    }
-    if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['reminder_time'])){
-        $reminder = $noteFactory->saveNote('reminder', $_POST["title"], $_POST['content'], $_POST['reminder_time']);
-        header('Content-Type: application/json');
-        $noteRepository->create($reminder);
-        exit; 
-    }
+    http_response_code(400);
+    echo json_encode(['error' => 'Неверный запрос']);
+});
 
-    if (isset($_POST['note']) && isset($_POST["id"])) {
-        $noteWithId = (new Note())->setId($_POST['id']);
-        $noteRepository->delete($noteWithId);
-        exit; 
-    }
-
-    if(isset($_POST['expired']) && isset($_POST['id'])){
-        $reminderCheck = (new Reminder())->setExpired($_POST['expired'])->setId($_POST['id']);
-        $noteRepository->markExpired($reminderCheck);
+$router->get('/note', function() use ($noteRepository){
+    if (isset($_GET['editData'])) {
+        $noteWithId = (new Note())->setId($_GET['editData']);
+        echo $noteRepository->readNote($noteWithId);
         exit;
     }
+});
 
-    if(isset($_POST['updateNote']) && isset($_POST["title"]) && isset($_POST['content'])) {
-        $noteUpdate = null;
-    
-        if(isset($_POST['reminder_time']) && $_POST['reminder_time'] !== null ) {
-            $noteUpdate = (new Reminder())
-                ->setId($_POST['id'])
-                ->setTitle($_POST['title'])
-                ->setContent($_POST['content'])
-                ->setReminderTime($_POST["reminder_time"]);
-        } else {
-            $noteUpdate = (new Note())
-                ->setId($_POST['id'])
-                ->setTitle($_POST['title'])
-                ->setContent($_POST['content']);
-        }
-        $noteRepository->update($noteUpdate);
+$router->get('/reminders', function() use ($noteRepository) {
+    if (isset($_GET['editData'])) {
+        $reminderWithId = (new Reminder())->setId($_GET['editData']);
+        echo json_encode($noteRepository->readReminders($reminderWithId));
         exit;
-    }
+    } 
+});
+
+$dispatcher = new Dispatcher($router->getData());
+
+$httpMethod = $_SERVER['REQUEST_METHOD'];
+$uri = $_SERVER['REQUEST_URI'];
+
+$uri = strtok($uri, '?');
+
+try{
+    echo $dispatcher->dispatch($httpMethod, $uri);
+} 
+ catch (Exception $e) {
+        http_response_code(404);
+    echo '<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>404 Not Found</title>
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+            h1 { font-size: 50px; }
+            p { font-size: 20px; }
+        </style>
+    </head>
+    <body>
+        <h1>404 Not Found</h1>
+        <p>Запрашиваемая страница не найдена.</p>
+    </body>
+    </html>';
+    exit;
 }
 
 ?>
@@ -127,8 +162,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </header>
     <div class="sidebar">
         <div class="nav-icons">
-            <div data-icon="notes"><span><img id="icon-note" src="png/icons8-notes-48.png" alt=""><p class="text">Заметки</p></span></div>
-            <div data-icon="reminders"><span><img src="png/icons8-reminder-241.png" alt=""><p class="text">Напоминания</p></span></div>
+            <a href="/note"><div home-page='1' data-icon="note" id='div-icon-note'><span><img id="icon-note" src="png/icons8-notes-48.png" alt=""><p class="text">Заметки</p></span></div></a>
+            <a href="/reminders"><div data-icon="reminders" id='div-icon-reminders'><span><img src="png/icons8-reminder-241.png" alt=""><p class="text">Напоминания</p></span></div></a>
             <!-- <div data-icon="settings"><span><img src="png/icons8-settings-48.png" alt=""><p class="text">Настройки</p></span></div>  -->
         </div>
     </div>
@@ -143,8 +178,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </main>
     </div>
     <section id="notesSection">
-        <div id="noteList">
-        </div>
+        <div id="noteList"></div>
     </section>
     <section id="remindersSection">
         <div id="reminderList"></div>

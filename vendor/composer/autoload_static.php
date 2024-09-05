@@ -25,6 +25,7 @@ class ComposerStaticInite5ef51bcb05daf6379c7c57b25dc7ead
         ),
         'P' => 
         array (
+            'Phroute\\Phroute\\' => 16,
             'PhpOption\\' => 10,
         ),
         'G' => 
@@ -61,6 +62,10 @@ class ComposerStaticInite5ef51bcb05daf6379c7c57b25dc7ead
         'Repository\\' => 
         array (
             0 => __DIR__ . '/../..' . '/www/src/Repository',
+        ),
+        'Phroute\\Phroute\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phroute/phroute/src/Phroute',
         ),
         'PhpOption\\' => 
         array (

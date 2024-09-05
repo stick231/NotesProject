@@ -1,9 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     if (!localStorage.getItem('activeIcon')) {
-        localStorage.setItem('activeIcon', 'notes');
+        localStorage.setItem('activeIcon', 'note');
 
-        window.location.href = '/note';
     }
+
+    const currentUrl = window.location.pathname;
+    const cleanUrl = currentUrl.replace(/^\/+/, '');
+
 
     const activeIcon = localStorage.getItem('activeIcon');
     const notesSection = document.getElementById('notesSection');
@@ -11,22 +14,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const reminderTimeInput = document.getElementById('reminderTime');
     const date_inp_container = document.querySelector("#data-input-container")
 
-    const currentUrl = window.location.pathname;
+    console.log(activeIcon)
+    console.log(cleanUrl)
 
-    if (activeIcon === "notes") {
-        if(currentUrl !== '/note'){
-            window.location.href = '/note';
-        }
+    if(currentUrl === '/note' || currentUrl === '/'){
+        
         readNote();
         notesSection.style.display = 'grid';
         remindersSection.style.display = 'none';
         if (reminderTimeInput && reminderTimeInput.parentNode) {
             date_inp_container.removeChild(reminderTimeInput);
         }
-    } else if (activeIcon === "reminders") {
-        if(currentUrl !== '/reminder'){
-            window.location.href = '/reminder';
-        }
+    }else if(currentUrl === '/reminders'){
+        
         readReminders();
         notesSection.style.display = 'none';
         remindersSection.style.display = 'grid';
@@ -45,26 +45,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const navIcons = document.querySelectorAll('.nav-icons div');
     navIcons.forEach(icon => {
         icon.addEventListener('click', handleIconClick);
-        if (icon.getAttribute('data-icon') === activeIcon) {
+        if (icon.getAttribute('data-icon') === cleanUrl) {
+            localStorage.setItem('activeIcon', cleanUrl);
             icon.classList.add('active');
         }
     });
+    const homeIcon = document.getElementById('div-icon-note');
+    if(homeIcon.getAttribute('home-page') && cleanUrl === ""){
+        console.log('234')
+        localStorage.setItem('activeIcon', 'note');
+        homeIcon.classList.add('active');
+    }
 });
 
 function handleIconClick() {
     const navIcons = document.querySelectorAll('.nav-icons div');
     navIcons.forEach(navIcon => navIcon.classList.remove('active'));
     this.classList.add('active');
-    localStorage.setItem('activeIcon', this.getAttribute('data-icon'));
-
-    let url;
-    if (this.getAttribute('data-icon') === "notes") {
-        url = '/note'; 
-    } else if (this.getAttribute('data-icon') === "reminders") {
-        url = '/reminder'; 
-    }
-
-    window.location.href = url;
 
     const notesSection = document.getElementById('notesSection');
     const remindersSection = document.getElementById('remindersSection');
@@ -72,7 +69,7 @@ function handleIconClick() {
 
     let reminderTimeInput = document.getElementById('reminderTime');
 
-    if (this.getAttribute('data-icon') === "notes") {
+    if (this.getAttribute('data-icon') === "note") {
         if (notesSection) {
             notesSection.style.display = 'grid';
         } else {
@@ -186,7 +183,7 @@ function scheduleReminder(note) {
         setTimeout(() => {
             sendReminder(note);
         }, delay);
-        fetch("index.php", {
+        fetch("/", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -210,7 +207,7 @@ function scheduleReminder(note) {
             console.error('There was a problem with the fetch operation:', error);
         });
     } else {
-        fetch("index.php", {
+        fetch("/", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -236,10 +233,10 @@ function scheduleReminder(note) {
 }
 
 function readReminders(searchData = "") {
-    let sql = "/reminder?read=reminder";
+    let sql = "/api/reminder";
   
     if (searchData) {
-      sql += `&search=${encodeURIComponent(searchData)}`;
+      sql += `?search=${encodeURIComponent(searchData)}`;
     }
   
     fetch(sql, {
@@ -328,10 +325,10 @@ function readReminders(searchData = "") {
 }
 
 function readNote(searchData = "") {
-    let url = "/note?read=note";
+    let url = "/api/notes";
 
     if(searchData){
-        url += `&search=${encodeURIComponent(searchData)}`
+        url += `?search=${encodeURIComponent(searchData)}`
     }
 
     fetch(url, {
@@ -425,8 +422,11 @@ function createNote() {
     if (!formData.has('reminder_time')) {
         formData.append('createNote', 'true');
     }
+    else{
+        formData.append('createReminder', 'true');
+    }
 
-    fetch('index.php', {
+    fetch('/', {
         method: "POST",
         body: formData
     })
@@ -494,7 +494,7 @@ function collapseInput()
 const searchInp = document.getElementById("search");
 
 searchInp.addEventListener("input", () => {
-    if(localStorage.getItem('activeIcon') === "notes"){
+    if(localStorage.getItem('activeIcon') === "note"){
         console.log(searchInp.value)
         readNote(searchInp.value);
     }
@@ -525,7 +525,7 @@ document.addEventListener('click', function(event) {
 });
 
 function deleteNote(idNote) {
-    fetch("index.php", {
+    fetch("/", {
         method: "POST",
         body: `id=${idNote}&note=delete`,
         headers: {
@@ -594,7 +594,7 @@ function updateNote(idNote) {
     formData.append('id', idNote);
     formData.append('updateNote', 'true')
 
-    fetch(`index.php`, {
+    fetch(`/`, {
         method: "POST",
         body: formData 
     })
