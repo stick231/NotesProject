@@ -2,17 +2,19 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 session_start();
 
+use Entities\User;
 use Entities\Database;
 use Entities\Note;
+use Entities\Reminder;
+use Repository\UserRepository;
 use Repository\NoteRepository;
 use Factory\NoteFactory;
-use Entities\Reminder;
+
 use Phroute\Phroute\RouteCollector;
 use Phroute\Phroute\Dispatcher;
 
-$router = new RouteCollector();
 
-//сделать регистрацию
+$router = new RouteCollector();
 
 $database = new Database();
 $noteRepository = new NoteRepository($database);
@@ -21,6 +23,62 @@ $noteFactory = new NoteFactory();
 
 $router->get('/', function() use ($noteRepository) {
 });
+
+$router->get('/auth', function(){
+    require 'auth.php';
+    exit;
+});
+
+$router->post('/auth-active', function() use ($database) {
+    if (isset($_POST["login"]) && isset($_POST["password"])) {
+        $login = $_POST["login"];
+        $password = $_POST["password"];
+    
+        $user = (new User())
+            ->setUsername($login)
+            ->setPassword($password);
+    
+        $userRepository = new UserRepository($database);
+    
+        if (!is_string($userRepository->authenticate($user))) {
+            header("Location: /");
+            exit; 
+        } else {
+            $response = $userRepository->authenticate($user);
+            $_SESSION['auth_error'] = $response;
+            header("Location: /auth"); 
+            exit; 
+        }
+    }
+});//перенести это в функцию в auth
+
+$router->get('/register', function(){
+    require 'register.php'; 
+    exit;
+});
+
+$router->post('/register-active', function() use ($database) {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
+        $username = $_POST["username"];
+        $password = $_POST["password"];
+
+        $user = (new User())
+            ->setUsername($username)
+            ->setPassword($password);
+
+        $userRepository = new UserRepository($database);
+
+        if ($userRepository->register($user)) {
+            header("Location: /");
+            exit; 
+        } else {
+            $response = "Такой пользователь уже есть!";
+            $_SESSION['register_error'] = $response;
+            header("Location: /register"); 
+            exit; 
+        }
+    }
+});//перенести это в функцию в register
 
 $router->get('/api/notes', function() use ($noteRepository) {
     if (isset($_GET['search'])) {
@@ -121,7 +179,7 @@ try{
     echo $dispatcher->dispatch($httpMethod, $uri);
 } 
  catch (Exception $e) {
-        http_response_code(404);
+    http_response_code(404);
     echo '<!DOCTYPE html>
     <html lang="en">
     <head>

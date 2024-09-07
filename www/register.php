@@ -1,39 +1,15 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php'; 
 
-use Entities\User;
-use Repository\UserRepository;
-use Entities\Database;
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-
-    $database = new DataBase(); 
-
-    $user = (new User())
-        ->setUsername($username)
-        ->setPassword($password);
-
-    $userRepository = new UserRepository($database);
-
-    if ($userRepository->register($user)) {
-        header("Location: index.php");
-        exit; 
-    } else {
-        $response = "Такой пользователь уже есть!";
-    }
-
+if (isset($_COOKIE["user_id"]) && isset($_COOKIE["register"]) && $_COOKIE["register"]) {
+        header("Location: /");
+        exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
-    if ($_POST['register'] == 'false') {
-    }
-} else {
-    if (isset($_COOKIE["user_id"]) && $_COOKIE["register"] === "true") {
-        header("Location: index.php");
-        exit();
-    }
+if (isset($_SESSION['register_error'])) {
+    $response = $_SESSION['register_error'];
+    unset($_SESSION['register_error']); 
 }
 
 ?>
@@ -46,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
 </head>
 <body>
     <div id="container">
-    <form id="Form" method="post">
+    <form id="Form" method="post" action="/register-active">
         <h1>Регистрация</h1>    
         <?php if (isset($response)) echo "<p>$response</p>";?>
         <input type="text"  maxlength="20" id="username" name="username" placeholder="Логин..">
@@ -59,18 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     </div>
     <script>
         document.getElementById("link").addEventListener("click", () => {
-            fetch("login.php", {
-                method: "POST",
+            fetch("/auth?register=true", {
+                method: "GET",
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: "register=true"
             })
             .then(response => {
                 if (response.ok) {
                     console.log("Перенаправление на вход");
                     setTimeout(() => {
-                        window.location = "login.php";
+                        window.location = "/auth";
                     }, 500);
                 } else {
                     console.error("Ошибка при перенаправлении:", response.status);
