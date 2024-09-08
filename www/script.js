@@ -672,7 +672,7 @@ function checkUser() {
                 const imgEl = el.querySelector("img");
                 if (imgEl) {
                     const LoginEl = document.createElement("p");
-                    LoginEl.textContent = data.login ? data.login : "Logged in user";
+                    LoginEl.textContent = data.login ? data.login : '' ;
                     el.insertBefore(LoginEl, imgEl.nextSibling);
                 } else {
                     console.error("No img element found in header");

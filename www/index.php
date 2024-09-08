@@ -2,11 +2,9 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 session_start();
 
-use Entities\User;
-use Entities\Database;
 use Entities\Note;
 use Entities\Reminder;
-use Repository\UserRepository;
+use Entities\Database;
 use Repository\NoteRepository;
 use Factory\NoteFactory;
 
@@ -20,7 +18,7 @@ $noteRepository = new NoteRepository($database);
 
 $noteFactory = new NoteFactory();
 
-$router->get('/', function() use ($noteRepository) {
+$router->get('/', function() {
 });
 
 $router->post('/auth/logout-and-clear', function(){
@@ -49,6 +47,10 @@ $router->post('/auth/logout-and-clear', function(){
 
 $router->get('/auth-checkuser', function(){
     if (isset($_COOKIE['user_id'])) { 
+        if(isset($_SESSION['just_register'])){
+            echo json_encode(["register" => true, "authentication" => true, "login" => $_SESSION['just_register']]);
+            exit;
+        }
         if(isset($_SESSION['login'])){
             echo json_encode(["register" => true, "authentication" => true, "login" => $_SESSION['login']]);
             exit;
@@ -56,69 +58,32 @@ $router->get('/auth-checkuser', function(){
         elseif(!isset($_SESSION['user_id'])){
             echo json_encode(['register' => true, 'authentication' => false]);
             exit;
-        }
-    } 
+        } 
+    }
     else {
         echo json_encode(['register' => false, 'authentication' => false]);
         exit;
     }
-});
-
-$router->get('/auth', function() use ($database) {
-    include 'auth.php';
     exit;
 });
 
-$router->post('/auth-active', function() use ($database) {
-    if (isset($_POST["login"]) && isset($_POST["password"])) {
-        $login = $_POST["login"];
-        $password = $_POST["password"];
-    
-        $user = (new User())
-            ->setUsername($login)
-            ->setPassword($password);
-    
-        $userRepository = new UserRepository($database);
-    
-        if (!is_string($userRepository->authenticate($user))) {
-            header("Location: /");
-            exit; 
-        } else {
-            $response = $userRepository->authenticate($user);
-            $_SESSION['auth_error'] = $response;
-            header("Location: /auth"); 
-            exit; 
-        }
+$router->any('/auth', function() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        include 'auth.php';
+    } else {
+        include 'auth.php';
     }
-});//перенести это в функцию в auth
-
-$router->get('/register', function(){
-    include 'register.php'; 
     exit;
 });
 
-$router->post('/register-active', function() use ($database) {
-    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
-        $username = $_POST["username"];
-        $password = $_POST["password"];
-
-        $user = (new User())
-            ->setUsername($username)
-            ->setPassword($password);
-
-        $userRepository = new UserRepository($database);
-
-        if ($userRepository->register($user)) {
-            header("Location: /");
-            exit; 
-        } else {
-            $response = "Такой пользователь уже есть!";
-            $_SESSION['register_error'] = $response;
-            header("Location: /register"); 
-            exit; 
-        }
+$router->any('/register', function() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        include 'register.php';
+    } else {
+        include 'register.php';
     }
-});//перенести это в функцию в register
+    exit;
+});
 
 $router->get('/api/notes', function() use ($noteRepository) {
     if (isset($_GET['search'])) {
