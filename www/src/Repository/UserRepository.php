@@ -40,6 +40,7 @@ class UserRepository implements UserRepositoryInterface{
                 setcookie("user_id", $userId, time() + 3600 * 24 * 30, "/"); 
                 $_SESSION['user_id'] = $userId;
                 setcookie("register", 'true', time() + 3600 * 24 * 30, "/");
+                $_SESSION['just_register'] = $user->getUsername();
 
                 return true;
             } 

@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php'; 
 
+use Entities\User;
+use Entities\Database;
+use Repository\UserRepository;
+
 setcookie("register", 'false', time() + 3600 * 24 * 30, "/");
 
 if (isset($_SESSION["login"])) {
@@ -13,6 +17,30 @@ if (isset($_SESSION['auth_error'])) {
     unset($_SESSION['auth_error']); 
 }
 
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST["login"]) && isset($_POST["password"])) {
+        $database = new Database();
+        $login = $_POST["login"];
+        $password = $_POST["password"];
+    
+        $user = (new User())
+            ->setUsername($login)
+            ->setPassword($password);
+    
+        $userRepository = new UserRepository($database);
+    
+        if (!is_string($userRepository->authenticate($user))) {
+            header("Location: /");
+            exit; 
+        } else {
+            $response = $userRepository->authenticate($user);
+            $_SESSION['auth_error'] = $response;
+            header("Location: /auth"); 
+            exit; 
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -23,7 +51,7 @@ if (isset($_SESSION['auth_error'])) {
 </head>
 <body>
     <div id="container">
-    <form id="Form" method="post" action="/auth-active">
+    <form id="Form" method="post" action="/auth">
         <h1>Вход в аккаунт</h1>
         <?php if (isset($response)) echo "<p>$response</p>";?>
         <input type="text" id="username" name="login" placeholder="Логин..">

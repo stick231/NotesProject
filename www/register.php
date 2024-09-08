@@ -1,8 +1,35 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php'; 
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Entities\Database;
+use Entities\User;
+use Repository\UserRepository;
 
 if(isset($_GET['register']) && $_GET['register'] === false){
     setcookie("register", 'false', time() + 3600 * 24 * 30, "/");
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
+    $database = new Database();
+
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+
+    $user = (new User())
+        ->setUsername($username)
+        ->setPassword($password);
+
+    $userRepository = new UserRepository($database);
+
+    if ($userRepository->register($user)) {
+        header("Location: /");
+        exit; 
+    } else {
+        $response = "Такой пользователь уже есть!";
+        $_SESSION['register_error'] = $response;
+        header("Location: /register"); 
+        exit; 
+    }
 }
 
 if (isset($_COOKIE["user_id"]) && isset($_COOKIE["register"]) && $_COOKIE["register"] === true) {
@@ -29,7 +56,7 @@ if (isset($_SESSION['register_error'])) {
 </head>
 <body>
     <div id="container">
-    <form id="Form" method="post" action="/register-active">
+    <form id="Form" method="post" action="/register">
         <h1>Регистрация</h1>    
         <?php if (isset($response)) echo "<p>$response</p>";?>
         <input type="text"  maxlength="20" id="username" name="username" placeholder="Логин..">
