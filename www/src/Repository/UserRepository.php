@@ -35,6 +35,12 @@ class UserRepository implements UserRepositoryInterface{
             if($this->checkUser($user)){
                 $stmt = $this->pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
                 $stmt->execute([$user->getUsername(), $user->getPassword()]);
+
+                $userId = $this->pdo->lastInsertId();
+                setcookie("user_id", $userId, time() + 3600 * 24 * 30, "/"); 
+                $_SESSION['user_id'] = $userId;
+                setcookie("register", 'true', time() + 3600 * 24 * 30, "/");
+
                 return true;
             } 
             return false;
@@ -49,7 +55,8 @@ class UserRepository implements UserRepositoryInterface{
         try{
             $query = "SELECT * FROM users WHERE username = ?";
             $stmt = $this->pdo->prepare($query);
-            $stmt->bindParam(1, $user->getUsername(), \PDO::PARAM_STR);
+            $username = $user->getUsername();
+            $stmt->bindParam(1, $username, \PDO::PARAM_STR);
             $stmt->execute();
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
@@ -58,6 +65,7 @@ class UserRepository implements UserRepositoryInterface{
                 if (password_verify($user->getUsername(), $row["password"])) {
                     $userId = $row['id'];
                     setcookie("user_id", $userId, time() + 3600 * 24 * 30, "/");
+                    $_SESSION['user_id'] = $userId;
                     $_SESSION["login"] = $user->getUsername();
                     setcookie("register", 'true', time() + 3600 * 24 * 30, "/");
                 } else {

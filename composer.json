@@ -2,7 +2,8 @@
     "name": "stick231/notesproject",
     "description": "Проект заметок",
     "require": {
-        "vlucas/phpdotenv": "^5.4"
+        "vlucas/phpdotenv": "^5.4",
+        "phroute/phroute": "^2.2"
     },
     "autoload": {
         "psr-4": {

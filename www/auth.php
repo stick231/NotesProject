@@ -1,42 +1,18 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php'; 
 
-use Entities\User;
-use Repository\UserRepository;
-use Entities\Database;
-session_start();
-
 setcookie("register", 'false', time() + 3600 * 24 * 30, "/");
 
-if (isset($_GET['register']) && $_GET['register'] === 'true') {
-    $_SESSION['register'] = true;
-}
-
-if (isset($_POST["login"]) && isset($_POST["password"])) {
-    $login = $_POST["login"];
-    $password = $_POST["password"];
-
-    $database = new DataBase();
-
-    $user = (new User())
-        ->setUsername($login)
-        ->setPassword($password);
-
-    $userRepository = new UserRepository($database);
-
-    if (!is_string($userRepository->authenticate($user))) {
-        header("Location: index.php");
-        exit; 
-    } else {
-        $response = $userRepository->authenticate($user);
-    }
-} 
-
-
-if (isset($_SESSION["login"]) || isset($_SESSION['just_registered'])) {
-    header("location: index.php");
+if (isset($_SESSION["login"])) {
+    header("location: /");
     exit;
 }
+
+if (isset($_SESSION['auth_error'])) {
+    $response = $_SESSION['auth_error'];
+    unset($_SESSION['auth_error']); 
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -47,7 +23,7 @@ if (isset($_SESSION["login"]) || isset($_SESSION['just_registered'])) {
 </head>
 <body>
     <div id="container">
-    <form id="Form" method="post">
+    <form id="Form" method="post" action="/auth-active">
         <h1>Вход в аккаунт</h1>
         <?php if (isset($response)) echo "<p>$response</p>";?>
         <input type="text" id="username" name="login" placeholder="Логин..">
@@ -60,18 +36,17 @@ if (isset($_SESSION["login"]) || isset($_SESSION['just_registered'])) {
     </div>
     <script>
         document.getElementById("link").addEventListener("click", () => {
-            fetch("register.php", {
-                method: "POST",
+            fetch("/register?register=false", {
+                method: "GET",
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: "register=false"
             })
             .then(response => {
                 if (response.ok) {
                     console.log("Перенаправление на регистрацию");
                     setTimeout(() => {
-                        window.location = "register.php";
+                        window.location = "/register";
                     }, 500);
                 } else {
                     console.error("Ошибка при перенаправлении:", response.status);

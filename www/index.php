@@ -1,110 +1,243 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
+session_start();
 
+use Entities\User;
 use Entities\Database;
 use Entities\Note;
+use Entities\Reminder;
+use Repository\UserRepository;
 use Repository\NoteRepository;
 use Factory\NoteFactory;
-use Entities\Reminder;
 
-// if(!isset($_COOKIE['user_id'])){
-//     header('Location: register.php');
-// }
-// elseif(!isset($_SESSION['login'])){
-//     header('Location: login.php');
-// }// реализация перехода на сайты, сделать маршутизацию
+use Phroute\Phroute\RouteCollector;
+use Phroute\Phroute\Dispatcher;
+
+$router = new RouteCollector();
 
 $database = new Database();
 $noteRepository = new NoteRepository($database);
+
 $noteFactory = new NoteFactory();
 
-session_start();
+$router->get('/', function() use ($noteRepository) {
+});
 
-$currentUrl = $_SERVER['REQUEST_URI'];
-$notesJson = '';
-$reminderJson = '';
+$router->post('/auth/logout-and-clear', function(){
+    $_SESSION = array();
 
-if ($_SERVER["REQUEST_METHOD"] === "GET") {
-    if(strpos($currentUrl, '/note') !== false){
-        if(isset($_GET["editData"])){
-            $noteWithId = (new Note())->setId($_GET['editData']);
-            echo $noteRepository->readNote($noteWithId); 
-            exit;
-        }
-        elseif(isset($_GET['search'])){
-            $noteWithSearch = (new Note())->setSearch($_GET['search']);
-            echo $noteRepository->readNote($noteWithSearch); 
-            exit;    
-        }
-        elseif(isset($_GET['read']) && $_GET['read'] === 'note'){
-            $note = new Note();
-            echo $noteRepository->readNote($note); 
-            exit;
-        }
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
     }
-    if(strpos($currentUrl, '/reminder') !== false){
-        if(isset($_GET['editData'])){
-            $reminderWithId = (new Reminder())->setId($_GET['editData']);
-            echo $noteRepository->readReminders($reminderWithId);
-            exit;
-        }
-        elseif(isset($_GET['search'])){
-            $noteWithSearch = (new Reminder())->setSearch($_GET['search']);
-            echo $noteRepository->readReminders($noteWithSearch); 
-            exit;    
-        }
-        elseif(isset($_GET['read']) && $_GET['read'] === 'reminder'){
-            $reminderOb = new Reminder();
-            echo $noteRepository->readReminders($reminderOb); 
-            exit;
-        }
-    }
-}
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['createNote'])){
-        $note = $noteFactory->saveNote('note', $_POST["title"], $_POST['content']);
-        header('Content-Type: application/json');
-        $noteRepository->create($note);
-        exit; 
-    }
-    if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['reminder_time'])){
-        $reminder = $noteFactory->saveNote('reminder', $_POST["title"], $_POST['content'], $_POST['reminder_time']);
-        header('Content-Type: application/json');
-        $noteRepository->create($reminder);
-        exit; 
-    }
-
-    if (isset($_POST['note']) && isset($_POST["id"])) {
-        $noteWithId = (new Note())->setId($_POST['id']);
-        $noteRepository->delete($noteWithId);
-        exit; 
-    }
-
-    if(isset($_POST['expired']) && isset($_POST['id'])){
-        $reminderCheck = (new Reminder())->setExpired($_POST['expired'])->setId($_POST['id']);
-        $noteRepository->markExpired($reminderCheck);
-        exit;
-    }
-
-    if(isset($_POST['updateNote']) && isset($_POST["title"]) && isset($_POST['content'])) {
-        $noteUpdate = null;
+    session_destroy();
     
-        if(isset($_POST['reminder_time']) && $_POST['reminder_time'] !== null ) {
-            $noteUpdate = (new Reminder())
-                ->setId($_POST['id'])
-                ->setTitle($_POST['title'])
-                ->setContent($_POST['content'])
-                ->setReminderTime($_POST["reminder_time"]);
-        } else {
-            $noteUpdate = (new Note())
-                ->setId($_POST['id'])
-                ->setTitle($_POST['title'])
-                ->setContent($_POST['content']);
+    
+    if (isset($_SERVER['HTTP_COOKIE'])) {
+        $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+        foreach($cookies as $cookie) {
+            $parts = explode('=', $cookie);
+            $name = trim($parts[0]);
+            setcookie($name, '', time()-1000);
+            setcookie($name, '', time()-1000, '/');
         }
-        $noteRepository->update($noteUpdate);
+    }
+});
+
+$router->get('/auth-checkuser', function(){
+    if (isset($_COOKIE['user_id'])) { 
+        if(isset($_SESSION['login'])){
+            echo json_encode(["register" => true, "authentication" => true, "login" => $_SESSION['login']]);
+            exit;
+        }
+        elseif(!isset($_SESSION['user_id'])){
+            echo json_encode(['register' => true, 'authentication' => false]);
+            exit;
+        }
+    } 
+    else {
+        echo json_encode(['register' => false, 'authentication' => false]);
         exit;
     }
+});
+
+$router->get('/auth', function() use ($database) {
+    include 'auth.php';
+    exit;
+});
+
+$router->post('/auth-active', function() use ($database) {
+    if (isset($_POST["login"]) && isset($_POST["password"])) {
+        $login = $_POST["login"];
+        $password = $_POST["password"];
+    
+        $user = (new User())
+            ->setUsername($login)
+            ->setPassword($password);
+    
+        $userRepository = new UserRepository($database);
+    
+        if (!is_string($userRepository->authenticate($user))) {
+            header("Location: /");
+            exit; 
+        } else {
+            $response = $userRepository->authenticate($user);
+            $_SESSION['auth_error'] = $response;
+            header("Location: /auth"); 
+            exit; 
+        }
+    }
+});//перенести это в функцию в auth
+
+$router->get('/register', function(){
+    include 'register.php'; 
+    exit;
+});
+
+$router->post('/register-active', function() use ($database) {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
+        $username = $_POST["username"];
+        $password = $_POST["password"];
+
+        $user = (new User())
+            ->setUsername($username)
+            ->setPassword($password);
+
+        $userRepository = new UserRepository($database);
+
+        if ($userRepository->register($user)) {
+            header("Location: /");
+            exit; 
+        } else {
+            $response = "Такой пользователь уже есть!";
+            $_SESSION['register_error'] = $response;
+            header("Location: /register"); 
+            exit; 
+        }
+    }
+});//перенести это в функцию в register
+
+$router->get('/api/notes', function() use ($noteRepository) {
+    if (isset($_GET['search'])) {
+        $noteWithSearch = (new Note())->setSearch($_GET['search']);
+        echo $noteRepository->readNote($noteWithSearch);
+        exit;    
+    }
+    $note = new Note();
+    echo $noteRepository->readNote($note);
+    exit;
+});
+
+$router->get('/api/reminder', function() use ($noteRepository) {
+    if (isset($_GET['search'])) {
+        $reminderWithSearch = (new Reminder())->setSearch($_GET['search']);
+        echo $noteRepository->readReminders($reminderWithSearch);
+        exit;    
+    }
+    $reminder = new Reminder();
+    echo $noteRepository->readReminders($reminder);
+    exit;
+});
+
+$router->post('/', function() use ($noteRepository, $noteFactory) {
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['createNote'])){
+            $note = $noteFactory->saveNote('note', $_POST["title"], $_POST['content']);
+            echo $noteRepository->create($note);
+            exit; 
+        }
+        
+        if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['reminder_time']) && isset($_POST['createReminder'])){
+            $reminder = $noteFactory->saveNote('reminder', $_POST["title"], $_POST['content'], $_POST['reminder_time']);
+            echo $noteRepository->create($reminder);
+            exit; 
+        }
+
+        if (isset($_POST['note']) && isset($_POST["id"])) {
+            $noteWithId = (new Note())->setId($_POST['id']);
+            echo $noteRepository->delete($noteWithId);
+            exit;
+        }
+
+        if(isset($_POST['expired']) && isset($_POST['id'])){
+            $reminderCheck = (new Reminder())->setExpired($_POST['expired'])->setId($_POST['id']);
+            echo $noteRepository->markExpired($reminderCheck);
+            exit;
+        }
+
+        if(isset($_POST['updateNote']) && isset($_POST["title"]) && isset($_POST['content'])) {
+            $noteUpdate = null;
+        
+            if(isset($_POST['reminder_time']) && $_POST['reminder_time'] !== null ) {
+                $noteUpdate = (new Reminder())
+                    ->setId($_POST['id'])
+                    ->setTitle($_POST['title'])
+                    ->setContent($_POST['content'])
+                    ->setReminderTime($_POST["reminder_time"]);
+            } else {
+                $noteUpdate = (new Note())
+                    ->setId($_POST['id'])
+                    ->setTitle($_POST['title'])
+                    ->setContent($_POST['content']);
+            }
+            echo $noteRepository->update($noteUpdate);
+            exit;
+        }
+    }
+
+    http_response_code(400);
+    echo json_encode(['error' => 'Неверный запрос']);
+});
+
+$router->get('/note', function() use ($noteRepository){
+    if (isset($_GET['editData'])) {
+        $noteWithId = (new Note())->setId($_GET['editData']);
+        echo $noteRepository->readNote($noteWithId);
+        exit;
+    }
+});
+
+$router->get('/reminders', function() use ($noteRepository) {
+    if (isset($_GET['editData'])) {
+        $reminderWithId = (new Reminder())->setId($_GET['editData']);
+        echo json_encode($noteRepository->readReminders($reminderWithId));
+        exit;
+    } 
+});
+
+$dispatcher = new Dispatcher($router->getData());
+
+$httpMethod = $_SERVER['REQUEST_METHOD'];
+$uri = $_SERVER['REQUEST_URI'];
+
+$uri = strtok($uri, '?');
+
+try{
+    echo $dispatcher->dispatch($httpMethod, $uri);
+} 
+ catch (Exception $e) {
+    http_response_code(404);
+    echo '<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>404 Not Found</title>
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+            h1 { font-size: 50px; }
+            p { font-size: 20px; }
+        </style>
+    </head>
+    <body>
+        <h1>404 Not Found</h1>
+        <p>Запрашиваемая страница не найдена.</p>
+    </body>
+    </html>';
+    exit;
 }
 
 ?>
@@ -127,9 +260,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </header>
     <div class="sidebar">
         <div class="nav-icons">
-            <div data-icon="notes"><span><img id="icon-note" src="png/icons8-notes-48.png" alt=""><p class="text">Заметки</p></span></div>
-            <div data-icon="reminders"><span><img src="png/icons8-reminder-241.png" alt=""><p class="text">Напоминания</p></span></div>
-            <!-- <div data-icon="settings"><span><img src="png/icons8-settings-48.png" alt=""><p class="text">Настройки</p></span></div>  -->
+            <a href="/note"><div home-page='1' data-icon="note" id='div-icon-note'><span><img id="icon-note" src="png/icons8-notes-48.png" alt=""><p class="text">Заметки</p></span></div></a>
+            <a href="/reminders"><div data-icon="reminders" id='div-icon-reminders'><span><img src="png/icons8-reminder-241.png" alt=""><p class="text">Напоминания</p></span></div></a>
         </div>
     </div>
     <div id="container">
@@ -143,8 +275,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </main>
     </div>
     <section id="notesSection">
-        <div id="noteList">
-        </div>
+        <div id="noteList"></div>
     </section>
     <section id="remindersSection">
         <div id="reminderList"></div>
