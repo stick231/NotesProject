@@ -1,11 +1,9 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php'; 
 
-session_start();
-
 setcookie("register", 'false', time() + 3600 * 24 * 30, "/");
 
-if (isset($_SESSION["login"]) || isset($_SESSION['just_registered'])) {
+if (isset($_SESSION["login"])) {
     header("location: /");
     exit;
 }

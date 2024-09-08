@@ -13,7 +13,6 @@ use Factory\NoteFactory;
 use Phroute\Phroute\RouteCollector;
 use Phroute\Phroute\Dispatcher;
 
-
 $router = new RouteCollector();
 
 $database = new Database();
@@ -24,8 +23,49 @@ $noteFactory = new NoteFactory();
 $router->get('/', function() use ($noteRepository) {
 });
 
-$router->get('/auth', function(){
-    require 'auth.php';
+$router->post('/auth/logout-and-clear', function(){
+    $_SESSION = array();
+
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+    session_destroy();
+    
+    
+    if (isset($_SERVER['HTTP_COOKIE'])) {
+        $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+        foreach($cookies as $cookie) {
+            $parts = explode('=', $cookie);
+            $name = trim($parts[0]);
+            setcookie($name, '', time()-1000);
+            setcookie($name, '', time()-1000, '/');
+        }
+    }
+});
+
+$router->get('/auth-checkuser', function(){
+    if (isset($_COOKIE['user_id'])) { 
+        if(isset($_SESSION['login'])){
+            echo json_encode(["register" => true, "authentication" => true, "login" => $_SESSION['login']]);
+            exit;
+        }
+        elseif(!isset($_SESSION['user_id'])){
+            echo json_encode(['register' => true, 'authentication' => false]);
+            exit;
+        }
+    } 
+    else {
+        echo json_encode(['register' => false, 'authentication' => false]);
+        exit;
+    }
+});
+
+$router->get('/auth', function() use ($database) {
+    include 'auth.php';
     exit;
 });
 
@@ -53,7 +93,7 @@ $router->post('/auth-active', function() use ($database) {
 });//перенести это в функцию в auth
 
 $router->get('/register', function(){
-    require 'register.php'; 
+    include 'register.php'; 
     exit;
 });
 
@@ -222,7 +262,6 @@ try{
         <div class="nav-icons">
             <a href="/note"><div home-page='1' data-icon="note" id='div-icon-note'><span><img id="icon-note" src="png/icons8-notes-48.png" alt=""><p class="text">Заметки</p></span></div></a>
             <a href="/reminders"><div data-icon="reminders" id='div-icon-reminders'><span><img src="png/icons8-reminder-241.png" alt=""><p class="text">Напоминания</p></span></div></a>
-            <!-- <div data-icon="settings"><span><img src="png/icons8-settings-48.png" alt=""><p class="text">Настройки</p></span></div>  -->
         </div>
     </div>
     <div id="container">

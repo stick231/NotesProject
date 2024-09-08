@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    checkUser()
     if (!localStorage.getItem('activeIcon')) {
         localStorage.setItem('activeIcon', 'note');
 
@@ -126,6 +127,29 @@ function handleIconClick() {
 
 document.querySelectorAll('.nav-icons div').forEach(icon => {
     icon.addEventListener('click', handleIconClick);
+});
+
+document.getElementById("user-img").addEventListener("click", (event) => {
+    const btnBack = document.getElementById("btn-back");
+    btnBack.classList.add("visible");
+});
+
+document.addEventListener("click", (event) => {
+    const userImg = document.getElementById("user-img");
+    const btnBack = document.getElementById("btn-back");
+
+    if (!userImg.contains(event.target) && !btnBack.contains(event.target)) {
+        btnBack.classList.remove("visible");
+    }
+});
+
+document.getElementById("btn-back").addEventListener("click", () => {
+    fetch("/auth/logout-and-clear", {
+        method: "POST"
+    })
+    .then(() => {
+        window.location.reload();
+    });
 });
 
 let audio;
@@ -439,7 +463,7 @@ function createNote() {
     .then(data => {
         if (data.success) {
             alert(data.message);
-            if(localStorage.getItem('activeIcon') === "notes"){
+            if(localStorage.getItem('activeIcon') === "note"){
                 readNote();
             }
             else{
@@ -535,7 +559,7 @@ function deleteNote(idNote) {
     .then(response => response.json())
     .then(data => {
         if(data.success){
-            if(localStorage.getItem('activeIcon') === "notes"){
+            if(localStorage.getItem('activeIcon') === "note"){
                 readNote();
             }
             else{
@@ -603,7 +627,8 @@ function updateNote(idNote) {
         console.log(data)
         if (data.success) {
             alert(data.message);
-            if (localStorage.getItem('activeIcon') === "notes") {
+            console.log(localStorage.getItem('activeIcon'))
+            if (localStorage.getItem('activeIcon') === "note") {
                 readNote();
             } else {
                 readReminders();
@@ -629,6 +654,45 @@ function resetForm() {
     buttonSubmit.textContent = "Создать";
 }
 
+function checkUser() {
+    fetch("/auth-checkuser")
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        if (data.register) {
+            console.log("User is registered");
+
+            const el = document.getElementById("header");
+            if (el) {
+                const imgEl = el.querySelector("img");
+                if (imgEl) {
+                    const LoginEl = document.createElement("p");
+                    LoginEl.textContent = data.login ? data.login : "Logged in user";
+                    el.insertBefore(LoginEl, imgEl.nextSibling);
+                } else {
+                    console.error("No img element found in header");
+                }
+            } else {
+                console.error("Header element not found");
+            }
+
+            if (!data.authentication) {
+                window.location = "/auth";
+            }
+        } else {
+            console.log("User is not registered");
+            window.location = "/register";
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 
 document.addEventListener('click', function(event) {
     if (event.target.classList.contains("noteListdel")) {

@@ -65,6 +65,7 @@ class UserRepository implements UserRepositoryInterface{
                 if (password_verify($user->getUsername(), $row["password"])) {
                     $userId = $row['id'];
                     setcookie("user_id", $userId, time() + 3600 * 24 * 30, "/");
+                    $_SESSION['user_id'] = $userId;
                     $_SESSION["login"] = $user->getUsername();
                     setcookie("register", 'true', time() + 3600 * 24 * 30, "/");
                 } else {

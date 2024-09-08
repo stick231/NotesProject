@@ -1,10 +1,17 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php'; 
 
+if(isset($_GET['register']) && $_GET['register'] === false){
+    setcookie("register", 'false', time() + 3600 * 24 * 30, "/");
+}
 
-if (isset($_COOKIE["user_id"]) && isset($_COOKIE["register"]) && $_COOKIE["register"]) {
-        header("Location: /");
-        exit();
+if (isset($_COOKIE["user_id"]) && isset($_COOKIE["register"]) && $_COOKIE["register"] === true) {
+    header("Location: /");
+    exit();
+}
+elseif(isset($_SESSION["login"])){
+    header("Location: /");
+    exit();
 }
 
 if (isset($_SESSION['register_error'])) {
@@ -57,7 +64,7 @@ if (isset($_SESSION['register_error'])) {
         });
 
 
-        function CheckInp(){
+    function CheckInp(){
     const inpUsername = document.getElementById("username");
     const inpPassword = document.getElementById("password");
 
