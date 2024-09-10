@@ -15,9 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const reminderTimeInput = document.getElementById('reminderTime');
     const date_inp_container = document.querySelector("#data-input-container")
 
-    console.log(activeIcon)
-    console.log(cleanUrl)
-
     if(currentUrl === '/note' || currentUrl === '/'){
         
         readNote();
@@ -53,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const homeIcon = document.getElementById('div-icon-note');
     if(homeIcon.getAttribute('home-page') && cleanUrl === ""){
-        console.log('234')
         localStorage.setItem('activeIcon', 'note');
         homeIcon.classList.add('active');
     }
@@ -222,9 +218,10 @@ function scheduleReminder(note) {
         })
         .then(data => {
             if (data.success) {
-                console.log(data)
+                console.log(data.message)
             } 
             else {
+                console.log(data.message)
             }
         })
         .catch(error => {
@@ -519,12 +516,10 @@ const searchInp = document.getElementById("search");
 
 searchInp.addEventListener("input", () => {
     if(localStorage.getItem('activeIcon') === "note"){
-        console.log(searchInp.value)
         readNote(searchInp.value);
     }
     else{
         readReminders(searchInp.value)
-        console.log(searchInp.value)
     }
 });
 
@@ -586,7 +581,6 @@ function editNoteForm(idNote) {
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data)
         if (data.length > 0) {
             expandInput();
 
@@ -624,10 +618,8 @@ function updateNote(idNote) {
     })
     .then(response => response.json()) 
     .then(data => {
-        console.log(data)
         if (data.success) {
             alert(data.message);
-            console.log(localStorage.getItem('activeIcon'))
             if (localStorage.getItem('activeIcon') === "note") {
                 readNote();
             } else {
@@ -663,7 +655,6 @@ function checkUser() {
         return response.json();
     })
     .then(data => {
-        console.log(data);
         if (data.register) {
             console.log("User is registered");
 
