@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 session_start();
 
+use Controllers\ReminderController;
+use Controllers\NoteController;
 use Entities\Note;
 use Entities\Reminder;
 use Entities\Database;
@@ -68,96 +70,65 @@ $router->get('/auth-checkuser', function(){
 });
 
 $router->any('/auth', function() {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        include 'auth.php';
-    } else {
-        include 'auth.php';
-    }
+    include 'auth.php';
     exit;
 });
 
 $router->any('/register', function() {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        include 'register.php';
-    } else {
-        include 'register.php';
-    }
+    include 'register.php';
     exit;
 });
 
 $router->get('/api/notes', function() use ($noteRepository) {
-    if (isset($_GET['search'])) {
-        $noteWithSearch = (new Note())->setSearch($_GET['search']);
-        echo $noteRepository->readNote($noteWithSearch);
-        exit;    
-    }
-    $note = new Note();
-    echo $noteRepository->readNote($note);
-    exit;
+    $noteController = new NoteController($noteRepository);
+    $noteController->readNote();
 });
 
 $router->get('/api/reminder', function() use ($noteRepository) {
-    if (isset($_GET['search'])) {
-        $reminderWithSearch = (new Reminder())->setSearch($_GET['search']);
-        echo $noteRepository->readReminders($reminderWithSearch);
-        exit;    
-    }
-    $reminder = new Reminder();
-    echo $noteRepository->readReminders($reminder);
-    exit;
+    $reminderController = new ReminderController($noteRepository);
+    $reminderController->readReminder();
 });
 
-$router->post('/', function() use ($noteRepository, $noteFactory) {
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['createNote'])){
-            $note = $noteFactory->saveNote('note', $_POST["title"], $_POST['content']);
-            echo $noteRepository->create($note);
-            exit; 
-        }
-        
-        if(isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['reminder_time']) && isset($_POST['createReminder'])){
-            $reminder = $noteFactory->saveNote('reminder', $_POST["title"], $_POST['content'], $_POST['reminder_time']);
-            echo $noteRepository->create($reminder);
-            exit; 
-        }
+$router->post('/notes', function() use ($noteRepository, $noteFactory)  {
+    $noteController = new NoteController($noteRepository, $noteFactory);
+    $actionMethods = NoteController::getActionMethodsNote();
 
-        if (isset($_POST['note']) && isset($_POST["id"])) {
-            $noteWithId = (new Note())->setId($_POST['id']);
-            echo $noteRepository->delete($noteWithId);
-            exit;
-        }
-
-        if(isset($_POST['expired']) && isset($_POST['id'])){
-            $reminderCheck = (new Reminder())->setExpired($_POST['expired'])->setId($_POST['id']);
-            echo $noteRepository->markExpired($reminderCheck);
-            exit;
-        }
-
-        if(isset($_POST['updateNote']) && isset($_POST["title"]) && isset($_POST['content'])) {
-            $noteUpdate = null;
-        
-            if(isset($_POST['reminder_time']) && $_POST['reminder_time'] !== null ) {
-                $noteUpdate = (new Reminder())
-                    ->setId($_POST['id'])
-                    ->setTitle($_POST['title'])
-                    ->setContent($_POST['content'])
-                    ->setReminderTime($_POST["reminder_time"]);
-            } else {
-                $noteUpdate = (new Note())
-                    ->setId($_POST['id'])
-                    ->setTitle($_POST['title'])
-                    ->setContent($_POST['content']);
-            }
-            echo $noteRepository->update($noteUpdate);
-            exit;
+    $action = null;
+    foreach ($actionMethods as $key => $value) {
+        if (isset($_POST[$key])) {
+            $action = $value;
+            break;
         }
     }
 
-    http_response_code(400);
-    echo json_encode(['error' => 'Неверный запрос']);
+    if ($action !== null) {
+        call_user_func([$noteController, $action]);
+    } else {
+        echo json_encode(['error' => 'Некорректный запрос для заметок.']);
+    }
 });
 
-$router->get('/note', function() use ($noteRepository){
+$router->post('/reminders', function() use ($noteRepository, $noteFactory){
+    $reminderController = new ReminderController($noteRepository, $noteFactory);
+    $actionMethods = ReminderController::getActionMethodsReminder();
+
+    $action = null;
+    foreach ($actionMethods as $key => $value) {
+        if (isset($_POST[$key])) {
+            $action = $value;
+            break;
+        }
+    }
+
+    if ($action !== null) {
+        call_user_func([$reminderController, $action]);
+        exit;
+    } else {
+        echo json_encode(['error' => 'Некорректный запрос для напоминаний.']);
+    }
+});
+
+$router->get('/notes', function() use ($noteRepository){
     if (isset($_GET['editData'])) {
         $noteWithId = (new Note())->setId($_GET['editData']);
         echo $noteRepository->readNote($noteWithId);
@@ -225,7 +196,7 @@ try{
     </header>
     <div class="sidebar">
         <div class="nav-icons">
-            <a href="/note"><div home-page='1' data-icon="note" id='div-icon-note'><span><img id="icon-note" src="png/icons8-notes-48.png" alt=""><p class="text">Заметки</p></span></div></a>
+            <a href="/notes"><div home-page='1' data-icon="notes" id='div-icon-notes'><span><img id="icon-note" src="png/icons8-notes-48.png" alt=""><p class="text">Заметки</p></span></div></a>
             <a href="/reminders"><div data-icon="reminders" id='div-icon-reminders'><span><img src="png/icons8-reminder-241.png" alt=""><p class="text">Напоминания</p></span></div></a>
         </div>
     </div>

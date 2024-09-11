@@ -7,7 +7,7 @@ class Reminder extends AbstractNote{
     
     public function getType(): string
     {
-        return "Remider";    
+        return "reminder";    
     }
 
     public function getReminderTime()

@@ -185,7 +185,7 @@ class NoteRepository implements NoteRepositoryInterface{
                     'success' => false,
                     'message' => 'Ошибка при обновлении устройства: ' . $errorInfo[2]
                 );
-                echo json_encode($response);
+            echo json_encode($response);
             }
         }   
         catch (\PDOException $e) {

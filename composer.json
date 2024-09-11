@@ -9,7 +9,8 @@
         "psr-4": {
             "Entities\\": "www/src/Entities/",
             "Repository\\": "www/src/Repository/",
-            "Factory\\": "www/src/Factory/"
+            "Factory\\": "www/src/Factory/",
+            "Controllers\\": "www/src/Controllers/"
         }
     }
 }

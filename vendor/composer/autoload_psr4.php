@@ -16,4 +16,5 @@ return array(
     'Factory\\' => array($baseDir . '/www/src/Factory'),
     'Entities\\' => array($baseDir . '/www/src/Entities'),
     'Dotenv\\' => array($vendorDir . '/vlucas/phpdotenv/src'),
+    'Controllers\\' => array($baseDir . '/www/src/Controllers'),
 );
