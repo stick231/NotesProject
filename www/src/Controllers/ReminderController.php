@@ -26,9 +26,10 @@ class ReminderController{
     public function createReminder() 
     {
         if (isset($_POST["title"]) && isset($_POST['content']) && isset($_POST['createReminder'])) {
-            $reminder = $this->noteFactory->saveNote('reminder', $_POST["title"], $_POST['content']);
+            $reminder = $this->noteFactory->saveNote('reminder', $_POST["title"], $_POST['content'], $_POST['reminder_time']);
             
             $this->noteRepository->create($reminder);
+            exit;
         } else {
             echo json_encode(['error' => 'Недостаточно данных для создания заметки.']);
             exit;
@@ -60,6 +61,7 @@ class ReminderController{
         
             if(isset($_POST['reminder_time']) && $_POST['reminder_time'] !== null ) {
                 $reminderUpdate = $this->noteFactory->saveNote('reminder', $_POST['title'], $_POST['content'], $_POST["reminder_time"]);
+                $reminderUpdate = $reminderUpdate->setId($_POST['id']);
             }
             $this->noteRepository->update($reminderUpdate);
             exit;

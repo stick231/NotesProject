@@ -412,20 +412,21 @@ let isEditing = true;
 
 function createNote() {
     let uri = '';
-    const currentUrl = window.location.pathname;
-    const cleanUrl = currentUrl.replace(/^\/+/, '');
-
+  
     const form = document.getElementById("noteForm");
     const formData = new FormData(form);
-
-    if (!formData.has('reminder_time') && cleanUrl === '/notes' || cleanUrl === '/') {
+  
+    if (!formData.has('reminder_time')) {
+        console.log("создание заметки")
         formData.append('createNote', 'true');
-        uri = '/notes' 
+        uri = '/notes';
     }
-    else if(cleanUrl === '/reminders' && formData.has('reminder_time')){
+    else if (formData.has('reminder_time')){
+        console.log("создание напоминания")
         formData.append('createReminder', 'true');
-        uri = '/reminders' 
+        uri = '/reminders';
     }
+  
 
     fetch(uri, {
         method: "POST",

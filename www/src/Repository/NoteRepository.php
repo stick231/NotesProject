@@ -34,7 +34,7 @@ class NoteRepository implements NoteRepositoryInterface{
             if ($stmt->execute($params)) {
                 $response = array(
                     'success' => true,
-                    'message' => 'Заметка успешно создана' 
+                    'message' => 'Заметка успешно создана'
                 );
         
                 echo json_encode($response);
