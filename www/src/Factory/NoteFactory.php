@@ -6,7 +6,7 @@ use Entities\Note;
 use Entities\Reminder;
 
 class NoteFactory implements NoteFactoryInterface{
-    public function saveNote(string $type, $title, $content, $ReminderTime = null, $search = ''): AbstractNote {
+    public function saveNote(string $type, $title, $content, $ReminderTime = null) :AbstractNote{
         switch ($type) {
             case 'reminder':
                 return (new Reminder())

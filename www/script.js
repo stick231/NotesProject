@@ -1,63 +1,78 @@
 document.addEventListener('DOMContentLoaded', () => {
-    checkUser()
-    if (!localStorage.getItem('activeIcon')) {
-        localStorage.setItem('activeIcon', 'note');
-
-    }
-
+    checkUser();
+    initializeActiveIcon();
     const currentUrl = window.location.pathname;
     const cleanUrl = currentUrl.replace(/^\/+/, '');
-
-
     const activeIcon = localStorage.getItem('activeIcon');
+
+    if (activeIcon !== cleanUrl) {
+        localStorage.setItem('activeIcon', cleanUrl);
+    }
+
+    setupSections(currentUrl);
+    setupNavIcons(cleanUrl);
+    collapseInput();
+});
+
+function initializeActiveIcon() {
+    if (!localStorage.getItem('activeIcon')) {
+        localStorage.setItem('activeIcon', 'notes');
+    }
+}
+
+function setupSections(currentUrl) {
     const notesSection = document.getElementById('notesSection');
     const remindersSection = document.getElementById('remindersSection');
     const reminderTimeInput = document.getElementById('reminderTime');
-    const date_inp_container = document.querySelector("#data-input-container")
+    const date_inp_container = document.querySelector("#data-input-container");
 
-    console.log(activeIcon)
-    console.log(cleanUrl)
-
-    if(currentUrl === '/note' || currentUrl === '/'){
-        
+    if (currentUrl === '/notes' || currentUrl === '/') {
+        displaySection(notesSection, remindersSection);
+        removeReminderTimeInput(reminderTimeInput, date_inp_container);
         readNote();
-        notesSection.style.display = 'grid';
-        remindersSection.style.display = 'none';
-        if (reminderTimeInput && reminderTimeInput.parentNode) {
-            date_inp_container.removeChild(reminderTimeInput);
-        }
-    }else if(currentUrl === '/reminders'){
-        
+    } else if (currentUrl === '/reminders') {
+        displaySection(remindersSection, notesSection);
+        createReminderTimeInput(reminderTimeInput, date_inp_container);
         readReminders();
-        notesSection.style.display = 'none';
-        remindersSection.style.display = 'grid';
-        if (!reminderTimeInput || !reminderTimeInput.parentNode) {
-            const newReminderTime = document.createElement('input');
-            newReminderTime.id = 'reminderTime';
-            newReminderTime.type = 'datetime-local';
-            newReminderTime.name = 'reminder_time';
-            newReminderTime.placeholder = 'Время напоминания';
-            date_inp_container.appendChild(newReminderTime)
-        }
     }
+}
 
-    collapseInput();
+function displaySection(showSection, hideSection) {
+    showSection.style.display = 'grid';
+    hideSection.style.display = 'none';
+}
 
+function removeReminderTimeInput(reminderTimeInput, container) {
+    if (reminderTimeInput && reminderTimeInput.parentNode) {
+        container.removeChild(reminderTimeInput);
+    }
+}
+
+function createReminderTimeInput(reminderTimeInput, container) {
+    if (!reminderTimeInput || !reminderTimeInput.parentNode) {
+        const newReminderTime = document.createElement('input');
+        newReminderTime.id = 'reminderTime';
+        newReminderTime.type = 'datetime-local';
+        newReminderTime.name = 'reminder_time';
+        newReminderTime.placeholder = 'Время напоминания';
+        container.appendChild(newReminderTime);
+    }
+}
+
+function setupNavIcons(cleanUrl) {
     const navIcons = document.querySelectorAll('.nav-icons div');
     navIcons.forEach(icon => {
         icon.addEventListener('click', handleIconClick);
         if (icon.getAttribute('data-icon') === cleanUrl) {
-            localStorage.setItem('activeIcon', cleanUrl);
             icon.classList.add('active');
         }
     });
-    const homeIcon = document.getElementById('div-icon-note');
-    if(homeIcon.getAttribute('home-page') && cleanUrl === ""){
-        console.log('234')
-        localStorage.setItem('activeIcon', 'note');
+
+    const homeIcon = document.getElementById('div-icon-notes');
+    if (homeIcon.getAttribute('home-page') && cleanUrl === "") {
         homeIcon.classList.add('active');
     }
-});
+}
 
 function handleIconClick() {
     const navIcons = document.querySelectorAll('.nav-icons div');
@@ -66,64 +81,19 @@ function handleIconClick() {
 
     const notesSection = document.getElementById('notesSection');
     const remindersSection = document.getElementById('remindersSection');
-    const date_inp_container = document.getElementById("date-input-container");
-
+    const date_inp_container = document.getElementById("data-input-container");
     let reminderTimeInput = document.getElementById('reminderTime');
 
-    if (this.getAttribute('data-icon') === "note") {
-        if (notesSection) {
-            notesSection.style.display = 'grid';
-        } else {
-            console.error('Секция заметок не найдена.');
-        }
-
-        if (remindersSection) {
-            remindersSection.style.display = 'none';
-        } else {
-            console.error('Секция напоминаний не найдена.');
-        }
-
-        document.getElementById("search").value = "";
-
-        if (reminderTimeInput && reminderTimeInput.parentNode) {
-            date_inp_container.removeChild(reminderTimeInput);
-        }
-
+    if (this.getAttribute('data-icon') === "notes") {
+        displaySection(notesSection, remindersSection);
+        removeReminderTimeInput(reminderTimeInput, date_inp_container);
         readNote();
-
     } else if (this.getAttribute('data-icon') === "reminders") {
-        if (notesSection) {
-            notesSection.style.display = 'none';
-        } else {
-            console.error('Секция заметок не найдена.');
-        }
-
-        if (remindersSection) {
-            remindersSection.style.display = 'grid';
-        } else {
-            console.error('Секция напоминаний не найдена.');
-        }
-
-        document.getElementById("search").value = "";
-
-        if (!reminderTimeInput || !reminderTimeInput.parentNode) {
-            const newReminderTime = document.createElement('input');
-            newReminderTime.id = 'reminderTime';
-            newReminderTime.type = 'datetime-local';
-            newReminderTime.name = 'reminder_time';
-            newReminderTime.placeholder = 'Время напоминания';
-
-            if (date_inp_container) {
-                date_inp_container.appendChild(newReminderTime); 
-            } else {
-                console.error('Контейнер для ввода времени не найден.');
-            }
-        }
-
+        displaySection(remindersSection, notesSection);
+        createReminderTimeInput(reminderTimeInput, date_inp_container);
         readReminders();
     }
 }
-
 
 document.querySelectorAll('.nav-icons div').forEach(icon => {
     icon.addEventListener('click', handleIconClick);
@@ -207,12 +177,12 @@ function scheduleReminder(note) {
         setTimeout(() => {
             sendReminder(note);
         }, delay);
-        fetch("/", {
+        fetch("/reminders", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `id=${note.id}&expired=false`
+            body: `id=${note.id}&markExpired=false`
         })
         .then(response => {
             if (!response.ok) {
@@ -231,12 +201,12 @@ function scheduleReminder(note) {
             console.error('There was a problem with the fetch operation:', error);
         });
     } else {
-        fetch("/", {
+        fetch("/reminders", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `id=${note.id}&expired=true`
+            body: `id=${note.id}&markExpired=true`
         })
         .then(response => {
             if (!response.ok) {
@@ -441,16 +411,24 @@ let noteId;
 let isEditing = true;
 
 function createNote() {
+    let uri = '';
+  
     const form = document.getElementById("noteForm");
     const formData = new FormData(form);
+  
     if (!formData.has('reminder_time')) {
+        console.log("создание заметки")
         formData.append('createNote', 'true');
+        uri = '/notes';
     }
-    else{
+    else if (formData.has('reminder_time')){
+        console.log("создание напоминания")
         formData.append('createReminder', 'true');
+        uri = '/reminders';
     }
+  
 
-    fetch('/', {
+    fetch(uri, {
         method: "POST",
         body: formData
     })
@@ -463,7 +441,7 @@ function createNote() {
     .then(data => {
         if (data.success) {
             alert(data.message);
-            if(localStorage.getItem('activeIcon') === "note"){
+            if(localStorage.getItem('activeIcon') === "notes"){
                 readNote();
             }
             else{
@@ -518,13 +496,11 @@ function collapseInput()
 const searchInp = document.getElementById("search");
 
 searchInp.addEventListener("input", () => {
-    if(localStorage.getItem('activeIcon') === "note"){
-        console.log(searchInp.value)
+    if(localStorage.getItem('activeIcon') === "notes"){
         readNote(searchInp.value);
     }
     else{
         readReminders(searchInp.value)
-        console.log(searchInp.value)
     }
 });
 
@@ -549,9 +525,23 @@ document.addEventListener('click', function(event) {
 });
 
 function deleteNote(idNote) {
-    fetch("/", {
+    const currentUrl = window.location.pathname;
+    let uri;
+    let request;
+
+    if (localStorage.getItem('activeIcon') === 'notes' || currentUrl === '/notes') {
+        request = '&deleteNote=true'
+        uri = '/notes' 
+    }
+    else if(localStorage.getItem('activeIcon') === 'reminders' || currentUrl === '/reminders'){
+        request = '&deleteReminder=true'
+        uri = '/reminders' 
+    }
+
+
+    fetch(uri, {
         method: "POST",
-        body: `id=${idNote}&note=delete`,
+        body: `id=${idNote}&` + request,
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
@@ -559,7 +549,7 @@ function deleteNote(idNote) {
     .then(response => response.json())
     .then(data => {
         if(data.success){
-            if(localStorage.getItem('activeIcon') === "note"){
+            if(localStorage.getItem('activeIcon') === "notes"){
                 readNote();
             }
             else{
@@ -576,7 +566,7 @@ function deleteNote(idNote) {
 }
 
 function editNoteForm(idNote) {
-    let url = '/note'
+    let url = '/notes'
 
     fetch(`${url}?editData=${idNote}`, {
         method: "GET",
@@ -616,9 +606,17 @@ function updateNote(idNote) {
     const Form = document.getElementById("noteForm");
     const formData = new FormData(Form);
     formData.append('id', idNote);
-    formData.append('updateNote', 'true')
 
-    fetch(`/`, {
+    if (!formData.has('reminder_time')) {
+        formData.append('updateNote', 'true');
+        uri = '/notes' 
+    }
+    else{
+        formData.append('updateReminder', 'true');
+        uri = '/reminders' 
+    }
+
+    fetch(uri, {
         method: "POST",
         body: formData 
     })
@@ -627,8 +625,7 @@ function updateNote(idNote) {
         console.log(data)
         if (data.success) {
             alert(data.message);
-            console.log(localStorage.getItem('activeIcon'))
-            if (localStorage.getItem('activeIcon') === "note") {
+            if (localStorage.getItem('activeIcon') === "notes") {
                 readNote();
             } else {
                 readReminders();

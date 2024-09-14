@@ -34,7 +34,7 @@ class NoteRepository implements NoteRepositoryInterface{
             if ($stmt->execute($params)) {
                 $response = array(
                     'success' => true,
-                    'message' => 'Заметка успешно создана' 
+                    'message' => 'Заметка успешно создана'
                 );
         
                 echo json_encode($response);
@@ -185,7 +185,7 @@ class NoteRepository implements NoteRepositoryInterface{
                     'success' => false,
                     'message' => 'Ошибка при обновлении устройства: ' . $errorInfo[2]
                 );
-                echo json_encode($response);
+            echo json_encode($response);
             }
         }   
         catch (\PDOException $e) {
