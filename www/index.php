@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 session_start();
 
+use Controllers\AuthController;
 use Controllers\ReminderController;
 use Controllers\NoteController;
 use Entities\Note;
@@ -10,10 +11,7 @@ use Entities\Database;
 use Repository\NoteRepository;
 use Factory\NoteFactory;
 
-use Phroute\Phroute\RouteCollector;
-use Phroute\Phroute\Dispatcher;
-
-$router = new RouteCollector();
+$router = new Phroute\Phroute\RouteCollector(); 
 
 $database = new Database();
 $noteRepository = new NoteRepository($database);
@@ -24,49 +22,13 @@ $router->get('/', function() {
 });
 
 $router->post('/auth/logout-and-clear', function(){
-    $_SESSION = array();
-
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
-        );
-    }
-    session_destroy();
-    
-    
-    if (isset($_SERVER['HTTP_COOKIE'])) {
-        $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
-        foreach($cookies as $cookie) {
-            $parts = explode('=', $cookie);
-            $name = trim($parts[0]);
-            setcookie($name, '', time()-1000);
-            setcookie($name, '', time()-1000, '/');
-        }
-    }
+    $authController = new AuthController();
+    $authController->logoutAndClear();
 });
 
 $router->get('/auth-checkuser', function(){
-    if (isset($_COOKIE['user_id'])) { 
-        if(isset($_SESSION['just_register'])){
-            echo json_encode(["register" => true, "authentication" => true, "login" => $_SESSION['just_register']]);
-            exit;
-        }
-        if(isset($_SESSION['login'])){
-            echo json_encode(["register" => true, "authentication" => true, "login" => $_SESSION['login']]);
-            exit;
-        }
-        elseif(!isset($_SESSION['user_id'])){
-            echo json_encode(['register' => true, 'authentication' => false]);
-            exit;
-        } 
-    }
-    else {
-        echo json_encode(['register' => false, 'authentication' => false]);
-        exit;
-    }
-    exit;
+    $authController = new AuthController();
+    $authController->checkUser();
 });
 
 $router->any('/auth', function() {
@@ -139,12 +101,12 @@ $router->get('/notes', function() use ($noteRepository){
 $router->get('/reminders', function() use ($noteRepository) {
     if (isset($_GET['editData'])) {
         $reminderWithId = (new Reminder())->setId($_GET['editData']);
-        echo json_encode($noteRepository->readReminders($reminderWithId));
+        echo $noteRepository->readReminders($reminderWithId);
         exit;
     } 
 });
 
-$dispatcher = new Dispatcher($router->getData());
+$dispatcher = new Phroute\Phroute\Dispatcher($router->getData());
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];

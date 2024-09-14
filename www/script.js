@@ -182,7 +182,7 @@ function scheduleReminder(note) {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `id=${note.id}&markExpired=true`
+            body: `id=${note.id}&markExpired=false`
         })
         .then(response => {
             if (!response.ok) {
