@@ -1,9 +1,12 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Controllers\AuthController;
 use Entities\Database;
 use Entities\User;
 use Repository\UserRepository;
+
+$authAction = new AuthController();
 
 if(isset($_GET['register']) && $_GET['register'] === false){
     setcookie("register", 'false', time() + 3600 * 24 * 30, "/");
@@ -22,8 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
     $userRepository = new UserRepository($database);
 
     if ($userRepository->register($user)) {
-        header("Location: /");
-        exit; 
+        $authAction->redirectToHomePage();
     } else {
         $response = "Такой пользователь уже есть!";
         $_SESSION['register_error'] = $response;
@@ -33,12 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username'])) {
 }
 
 if (isset($_COOKIE["user_id"]) && isset($_COOKIE["register"]) && $_COOKIE["register"] === true) {
-    header("Location: /");
-    exit();
+    $authAction->redirectToHomePage();
 }
 elseif(isset($_SESSION["login"])){
-    header("Location: /");
-    exit();
+    $authAction->redirectToHomePage();
 }
 
 if (isset($_SESSION['register_error'])) {

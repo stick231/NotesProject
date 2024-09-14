@@ -10,7 +10,7 @@ class NoteRepository implements NoteRepositoryInterface{
     private $pdo;
 
     public function __construct(Database $database) {
-        $this->pdo = $database->getConnection();
+        $this->pdo = $database::getInstance()->getConnection();
     }
 
     public function create(AbstractNote $abstractNote)

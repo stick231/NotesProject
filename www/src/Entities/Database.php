@@ -7,7 +7,15 @@ class Database{
     private $pass = "1234";
     private $host = "mysql";
     private $db = "dbtest";
+    private static $instance = null;
     public $conn;
+
+    public static function getInstance() {
+        if (self::$instance == null) {
+            self::$instance = new Database();
+        }
+        return self::$instance;
+    }
 
     public function getConnection()
     {

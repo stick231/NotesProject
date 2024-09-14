@@ -32,13 +32,13 @@ $router->get('/auth-checkuser', function(){
 });
 
 $router->any('/auth', function() {
-    include 'auth.php';
-    exit;
+    $registerAction = new AuthController();
+    $registerAction->redirectToAuth();
 });
 
 $router->any('/register', function() {
-    include 'register.php';
-    exit;
+    $registerAction = new AuthController();
+    $registerAction->redirectToRegister();
 });
 
 $router->get('/api/notes', function() use ($noteRepository) {
@@ -46,7 +46,7 @@ $router->get('/api/notes', function() use ($noteRepository) {
     $noteController->readNote();
 });
 
-$router->get('/api/reminder', function() use ($noteRepository) {
+$router->get('/api/reminders', function() use ($noteRepository) {
     $reminderController = new ReminderController($noteRepository);
     $reminderController->readReminder();
 });

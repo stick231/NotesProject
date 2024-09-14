@@ -47,4 +47,19 @@ class AuthController {
         }
         exit;
     }
+    public function redirectToAuth()
+    {
+        include 'auth.php';
+        exit;
+    }
+
+    public function redirectToRegister()
+    {
+        include 'register.php';
+        exit;
+    }
+    public function redirectToHomePage()
+    {
+        header('Location: /');
+    }
 }

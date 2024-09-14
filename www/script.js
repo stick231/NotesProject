@@ -227,7 +227,7 @@ function scheduleReminder(note) {
 }
 
 function readReminders(searchData = "") {
-    let sql = "/api/reminder";
+    let sql = "/api/reminders";
   
     if (searchData) {
       sql += `?search=${encodeURIComponent(searchData)}`;
