@@ -227,7 +227,7 @@ function scheduleReminder(note) {
 }
 
 function readReminders(searchData = "") {
-    let sql = "/api/reminder";
+    let sql = "/api/reminders";
   
     if (searchData) {
       sql += `?search=${encodeURIComponent(searchData)}`;
@@ -679,11 +679,10 @@ function checkUser() {
             }
 
             if (!data.authentication) {
-                window.location = "/auth";
+                console.log("User is not auth");
             }
         } else {
             console.log("User is not registered");
-            window.location = "/register";
         }
     })
     .catch(error => {

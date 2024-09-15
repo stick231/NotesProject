@@ -1,15 +1,17 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php'; 
+require_once __DIR__ . '/../vendor/autoload.php';
 
+use Controllers\AuthController;
 use Entities\User;
 use Entities\Database;
 use Repository\UserRepository;
 
+$authAction = new AuthController();
+
 setcookie("register", 'false', time() + 3600 * 24 * 30, "/");
 
 if (isset($_SESSION["login"])) {
-    header("location: /");
-    exit;
+    $authAction->redirectToHomePage();
 }
 
 if (isset($_SESSION['auth_error'])) {
@@ -31,12 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $userRepository = new UserRepository($database);
     
         if (!is_string($userRepository->authenticate($user))) {
-            header("Location: /");
-            exit; 
+            $authAction->redirectToHomePage();
         } else {
             $response = $userRepository->authenticate($user);
             $_SESSION['auth_error'] = $response;
-            header("Location: /auth"); 
+
+            header("Location: /auth");
             exit; 
         }
     }
