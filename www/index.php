@@ -7,39 +7,37 @@ use Controllers\ReminderController;
 use Controllers\NoteController;
 use Entities\Note;
 use Entities\Reminder;
-use Entities\Database;
 use Repository\NoteRepository;
 use Factory\NoteFactory;
+use Controllers\AuthMiddleware;
 
 $router = new Phroute\Phroute\RouteCollector(); 
 
-$database = new Database();
-$noteRepository = new NoteRepository($database);
-
-$noteFactory = new NoteFactory();
-
 $router->get('/', function() {
+    $authMiddleware = new AuthMiddleware();    
+    $authMiddleware->handle($_REQUEST, function() {});
 });
 
-$router->post('/auth/logout-and-clear', function(){
-    $authController = new AuthController();
+$authController = new AuthController();
+
+$router->post('/auth/logout-and-clear', function() use ($authController){
     $authController->logoutAndClear();
 });
 
-$router->get('/auth-checkuser', function(){
-    $authController = new AuthController();
+$router->get('/auth-checkuser', function() use ($authController){
     $authController->checkUser();
 });
 
-$router->any('/auth', function() {
-    $registerAction = new AuthController();
-    $registerAction->redirectToAuth();
+$router->any('/auth', function() use ($authController){
+    $authController->redirectToAuth();
 });
 
-$router->any('/register', function() {
-    $registerAction = new AuthController();
-    $registerAction->redirectToRegister();
+$router->any('/register', function() use ($authController){
+    $authController->redirectToRegister();
 });
+
+$database = new Entities\Database();
+$noteRepository = new NoteRepository($database);
 
 $router->get('/api/notes', function() use ($noteRepository) {
     $noteController = new NoteController($noteRepository);
@@ -51,43 +49,51 @@ $router->get('/api/reminders', function() use ($noteRepository) {
     $reminderController->readReminder();
 });
 
+$noteFactory = new NoteFactory(); 
+
 $router->post('/notes', function() use ($noteRepository, $noteFactory)  {
-    $noteController = new NoteController($noteRepository, $noteFactory);
-    $actionMethods = NoteController::getActionMethodsNote();
-
-    $action = null;
-    foreach ($actionMethods as $key => $value) {
-        if (isset($_POST[$key])) {
-            $action = $value;
-            break;
+    $authMiddleware = new AuthMiddleware();    
+    $authMiddleware->handle($_REQUEST, function() use ($noteRepository, $noteFactory) {
+        $noteController = new NoteController($noteRepository, $noteFactory);
+        $actionMethods = NoteController::getActionMethodsNote();
+    
+        $action = null;
+        foreach ($actionMethods as $key => $value) {
+            if (isset($_POST[$key])) {
+                $action = $value;
+                break;
+            }
         }
-    }
-
-    if ($action !== null) {
-        call_user_func([$noteController, $action]);
-    } else {
-        echo json_encode(['error' => 'Некорректный запрос для заметок.']);
-    }
+    
+        if ($action !== null) {
+            call_user_func([$noteController, $action]);
+        } else {
+            echo json_encode(['error' => 'Некорректный запрос для заметок.']);
+        }
+    });
 });
 
 $router->post('/reminders', function() use ($noteRepository, $noteFactory){
-    $reminderController = new ReminderController($noteRepository, $noteFactory);
-    $actionMethods = ReminderController::getActionMethodsReminder();
+    $authMiddleware = new AuthMiddleware();    
+    $authMiddleware->handle($_REQUEST, function() use ($noteRepository, $noteFactory) {
+        $reminderController = new ReminderController($noteRepository, $noteFactory);
+        $actionMethods = ReminderController::getActionMethodsReminder();
 
-    $action = null;
-    foreach ($actionMethods as $key => $value) {
-        if (isset($_POST[$key])) {
-            $action = $value;
-            break;
+        $action = null;
+        foreach ($actionMethods as $key => $value) {
+            if (isset($_POST[$key])) {
+                $action = $value;
+                break;
+            }
         }
-    }
 
-    if ($action !== null) {
-        call_user_func([$reminderController, $action]);
-        exit;
-    } else {
-        echo json_encode(['error' => 'Некорректный запрос для напоминаний.']);
-    }
+        if ($action !== null) {
+            call_user_func([$reminderController, $action]);
+            exit;
+        } else {
+            echo json_encode(['error' => 'Некорректный запрос для напоминаний.']);
+        }
+    });
 });
 
 $router->get('/notes', function() use ($noteRepository){

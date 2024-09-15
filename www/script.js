@@ -679,11 +679,10 @@ function checkUser() {
             }
 
             if (!data.authentication) {
-                window.location = "/auth";
+                console.log("User is not auth");
             }
         } else {
             console.log("User is not registered");
-            window.location = "/register";
         }
     })
     .catch(error => {
