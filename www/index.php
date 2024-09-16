@@ -73,6 +73,7 @@ $router->post('/notes', function() use ($noteRepository, $noteFactory)  {
     });
 });
 
+
 $router->post('/reminders', function() use ($noteRepository, $noteFactory){
     $authMiddleware = new AuthMiddleware();    
     $authMiddleware->handle($_REQUEST, function() use ($noteRepository, $noteFactory) {
@@ -97,19 +98,25 @@ $router->post('/reminders', function() use ($noteRepository, $noteFactory){
 });
 
 $router->get('/notes', function() use ($noteRepository){
+    $authMiddleware = new AuthMiddleware();    
+    $authMiddleware->handle($_REQUEST, function() use ($noteRepository) {
     if (isset($_GET['editData'])) {
-        $noteWithId = (new Note())->setId($_GET['editData']);
-        echo $noteRepository->readNote($noteWithId);
-        exit;
-    }
+            $noteWithId = (new Note())->setId($_GET['editData']);
+            echo $noteRepository->readNote($noteWithId);
+            exit;
+        }
+    });
 });
 
 $router->get('/reminders', function() use ($noteRepository) {
-    if (isset($_GET['editData'])) {
-        $reminderWithId = (new Reminder())->setId($_GET['editData']);
-        echo $noteRepository->readReminders($reminderWithId);
-        exit;
-    } 
+    $authMiddleware = new AuthMiddleware();    
+    $authMiddleware->handle($_REQUEST, function() use ($noteRepository) {
+        if (isset($_GET['editData'])) {
+            $reminderWithId = (new Reminder())->setId($_GET['editData']);
+            echo $noteRepository->readReminders($reminderWithId);
+            exit;
+        } 
+    });
 });
 
 $dispatcher = new Phroute\Phroute\Dispatcher($router->getData());

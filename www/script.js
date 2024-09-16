@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (activeIcon !== cleanUrl) {
         localStorage.setItem('activeIcon', cleanUrl);
     }
+    if (currentUrl === '/'){
+        localStorage.setItem('activeIcon', 'notes');
+    }
 
     setupSections(currentUrl);
     setupNavIcons(cleanUrl);
@@ -496,10 +499,11 @@ function collapseInput()
 const searchInp = document.getElementById("search");
 
 searchInp.addEventListener("input", () => {
+    console.log(localStorage.getItem('activeIcon'))
     if(localStorage.getItem('activeIcon') === "notes"){
         readNote(searchInp.value);
     }
-    else{
+    else if (localStorage.getItem('activeIcon') === "reminders"){
         readReminders(searchInp.value)
     }
 });
