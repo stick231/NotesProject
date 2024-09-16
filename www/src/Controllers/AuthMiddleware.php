@@ -10,7 +10,7 @@ class AuthMiddleware {
                 exit; 
             } 
             
-            else if((isset($_COOKIE['user_id']))){
+            else if((!isset($_COOKIE['user_id']))){
                 $_SESSION['register_error'] = 'Пожалуйста, пройдите регистрацию.'; 
                 header("Location: /register");
                 exit; 
