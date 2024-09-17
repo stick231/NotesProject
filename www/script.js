@@ -499,7 +499,6 @@ function collapseInput()
 const searchInp = document.getElementById("search");
 
 searchInp.addEventListener("input", () => {
-    console.log(localStorage.getItem('activeIcon'))
     if(localStorage.getItem('activeIcon') === "notes"){
         readNote(searchInp.value);
     }
@@ -553,6 +552,7 @@ function deleteNote(idNote) {
     .then(response => response.json())
     .then(data => {
         if(data.success){
+            collapseInput()
             if(localStorage.getItem('activeIcon') === "notes"){
                 readNote();
             }
