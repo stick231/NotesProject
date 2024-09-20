@@ -39,12 +39,12 @@ $router->any('/register', function() use ($authController){
 $database = new Entities\Database();
 $noteRepository = new NoteRepository($database);
 
-$router->get('/api/notes', function() use ($noteRepository) {
+$router->post('/api/notes', function() use ($noteRepository) {
     $noteController = new NoteController($noteRepository);
     $noteController->readNote();
 });
 
-$router->get('/api/reminders', function() use ($noteRepository) {
+$router->post('/api/reminders', function() use ($noteRepository) {
     $reminderController = new ReminderController($noteRepository);
     $reminderController->readReminder();
 });
