@@ -38,7 +38,7 @@ class ReminderController{
     public function readReminder()
     {
         if (isset($_POST['search'])) {
-            $reminderWithSearch = (new Reminder())->setSearch($_GET['search']);
+            $reminderWithSearch = (new Reminder())->setSearch($_POST['search']);
             echo $this->noteRepository->readReminders($reminderWithSearch);
             exit;    
         }

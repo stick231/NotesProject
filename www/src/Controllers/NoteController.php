@@ -38,7 +38,7 @@ class NoteController{
     public function readNote()
     {
         if (isset($_POST['search'])) {
-            $noteWithSearch = (new Note())->setSearch($_GET['search']);
+            $noteWithSearch = (new Note())->setSearch($_POST['search']);
             echo $this->noteRepository->readNote($noteWithSearch);
             exit;    
         }
