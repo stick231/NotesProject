@@ -237,7 +237,7 @@ function readReminders(searchData = "") {
     }
   
     fetch(sql, {
-    method: "GET",
+    method: "POST",
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
     }
@@ -329,7 +329,7 @@ function readNote(searchData = "") {
     }
 
     fetch(url, {
-        method: "GET",
+        method: "POST",
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
