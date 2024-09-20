@@ -25,7 +25,6 @@ class User {
     public function setPassword($password)
     {
         $new = clone $this;
-        $password = password_hash($password, PASSWORD_DEFAULT); 
         $new->password = $password;
         return $new;
     }
