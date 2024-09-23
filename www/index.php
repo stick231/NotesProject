@@ -40,11 +40,13 @@ $database = new Entities\Database();
 $noteRepository = new NoteRepository($database);
 
 $router->post('/api/notes', function() use ($noteRepository) {
+    header('Content-Type: application/json');
     $noteController = new NoteController($noteRepository);
     $noteController->readNote();
 });
 
 $router->post('/api/reminders', function() use ($noteRepository) {
+    header('Content-Type: application/json');
     $reminderController = new ReminderController($noteRepository);
     $reminderController->readReminder();
 });

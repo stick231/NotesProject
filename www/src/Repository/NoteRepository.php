@@ -16,7 +16,7 @@ class NoteRepository implements NoteRepositoryInterface{
     public function create(AbstractNote $abstractNote)
     {
         try{
-            $query = "INSERT INTO note (title, content, time, reminder_time) VALUES (?, ?, ?, ?)";
+            $query = "INSERT INTO note (title, content, time, reminder_time, user_id) VALUES (?, ?, ?, ?, ?)";
             $stmt = $this->pdo->prepare($query);
 
             $reminderTime = null;
@@ -29,7 +29,8 @@ class NoteRepository implements NoteRepositoryInterface{
                 $abstractNote->getTitle(),
                 $abstractNote->getContent(),
                 date('Y-m-d H:i:s'),
-                $reminderTime instanceof \DateTime ? $reminderTime->format('Y-m-d H:i:s') : $reminderTime
+                $reminderTime instanceof \DateTime ? $reminderTime->format('Y-m-d H:i:s') : $reminderTime,
+                $_SESSION['user_id']
             );
             if ($stmt->execute($params)) {
                 $response = array(
@@ -56,23 +57,32 @@ class NoteRepository implements NoteRepositoryInterface{
     {   
         try{
             if ($note->getId() !== null) {
-                $query = "SELECT * FROM note WHERE id = :id";
+                $query = "SELECT * FROM note WHERE id = :id AND user_id = :user_id";
 
                 $stmt = $this->pdo->prepare($query);
                 $idParam = $note->getId() ;
+                $userIdParams = $_SESSION['user_id'];
+
                 $stmt->bindParam(':id', $idParam, \PDO::PARAM_INT);
+                $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
             } 
             elseif($note->getSearch() !== null){
-                $query = "SELECT * FROM note WHERE reminder_time IS NULL AND (title LIKE :search OR content LIKE :search OR time LIKE :search)";
+                $query = "SELECT * FROM note WHERE reminder_time IS NULL AND (title LIKE :search OR content LIKE :search OR time LIKE :search) AND user_id = :user_id";
 
                 $stmt = $this->pdo->prepare($query);
     
                 $searchParam = "%{$note->getSearch()}%";
+                $userIdParams = $_SESSION['user_id'];
+
                 $stmt->bindParam(':search', $searchParam, \PDO::PARAM_STR);
+                $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
             }
             else {
-                $query = "SELECT * FROM note WHERE reminder_time IS NULL";
+                $query = "SELECT * FROM note WHERE reminder_time IS NULL AND user_id = :user_id";
                 $stmt = $this->pdo->prepare($query);
+
+                $userIdParams = $_SESSION['user_id'];
+                $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
             }
 
         $stmt->execute();
@@ -90,23 +100,32 @@ class NoteRepository implements NoteRepositoryInterface{
     {   
         try{
             if ($reminder->getId() !== null) {
-                $query = "SELECT * FROM note WHERE id = :id";
+                $query = "SELECT * FROM note WHERE id = :id AND user_id = :user_id";
 
                 $stmt = $this->pdo->prepare($query);
                 $idParam = $reminder->getId() ;
+                $userIdParams = $_SESSION['user_id'];
+
                 $stmt->bindParam(':id', $idParam, \PDO::PARAM_INT);
+                $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
             } 
             elseif($reminder->getSearch() !== null){
-                $query = "SELECT * FROM note WHERE reminder_time IS NOT NULL AND (title LIKE :search OR content LIKE :search OR reminder_time LIKE :search)";
+                $query = "SELECT * FROM note WHERE reminder_time IS NOT NULL AND (title LIKE :search OR content LIKE :search OR reminder_time LIKE :search) AND user_id = :user_id";
 
                 $stmt = $this->pdo->prepare($query);
     
                 $searchParam = "%{$reminder->getSearch()}%";
+                $userIdParams = $_SESSION['user_id'];
+                
                 $stmt->bindParam(':search', $searchParam, \PDO::PARAM_STR);
+                $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
             }
             else {
-                $query = "SELECT * FROM note WHERE reminder_time IS NOT NULL";
+                $query = "SELECT * FROM note WHERE reminder_time IS NOT NULL AND user_id = :user_id";
                 $stmt = $this->pdo->prepare($query);
+
+                $userIdParams = $_SESSION['user_id'];
+                $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
             }
 
             $stmt->execute();
