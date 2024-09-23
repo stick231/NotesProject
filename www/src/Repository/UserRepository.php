@@ -34,7 +34,7 @@ class UserRepository implements UserRepositoryInterface{
         try{
             if($this->checkUser($user)){
                 $stmt = $this->pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-                $stmt->execute([$user->getUsername(), $user->getPassword()]);
+                $stmt->execute([$user->getUsername(), password_hash($user->getPassword(), PASSWORD_DEFAULT)]);
 
                 $userId = $this->pdo->lastInsertId();
                 setcookie("user_id", $userId, time() + 3600 * 24 * 30, "/"); 
