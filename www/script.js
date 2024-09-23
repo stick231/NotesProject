@@ -237,10 +237,13 @@ function readReminders(searchData = "") {
     }
   
     fetch(sql, {
-    method: "POST",
-    headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            'search': encodeURIComponent(searchData)
+        }).toString()
     })
     .then(response => {
         if (!response.ok) {
@@ -324,15 +327,15 @@ function readReminders(searchData = "") {
 function readNote(searchData = "") {
     let url = "/api/notes";
 
-    if(searchData){
-        url += `?search=${encodeURIComponent(searchData)}`
-    }
 
     fetch(url, {
         method: "POST",
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
-        }
+        },
+        body: new URLSearchParams({
+            'search': encodeURIComponent(searchData)
+        }).toString()
     })
     .then(response => {
         if (!response.ok) {
