@@ -236,6 +236,7 @@ function readReminders(searchData = "") {
 
         if (data.length === 0) {
             const newTextNoNotes = document.createElement("h3");
+            newTextNoNotes.className = 'TextNoNotes';
             if(searchData){
                 newTextNoNotes.textContent = "Таких напоминаний нету. Но вы можете их сделать";
             }
@@ -326,6 +327,7 @@ function readNote(searchData = "") {
 
         if (data.length === 0) {
             const newTextNoNotes = document.createElement("h3");
+            newTextNoNotes.className = 'TextNoNotes';
             if(searchData){
                 newTextNoNotes.textContent = "Таких заметок нету. Но вы можете их сделать";
             }

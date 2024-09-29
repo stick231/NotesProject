@@ -354,3 +354,7 @@ header p {
     transform: translate(-50%, -50%);
     width: 100%;
 }
+
+.textNoNotes{
+    font-size: 30px;
+}
