@@ -213,10 +213,6 @@ function scheduleReminder(note) {
 function readReminders(searchData = "") {
     let sql = "/api/reminders";
   
-    if (searchData) {
-      sql += `?search=${encodeURIComponent(searchData)}`;
-    }
-  
     fetch(sql, {
         method: "POST",
         headers: {
