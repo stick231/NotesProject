@@ -166,9 +166,7 @@ function sendReminder(note) {
         alert(`Напоминание: ${note.title}\n${note.content}`);
     }
 
-    setTimeout(() => {
-        readReminders();
-    }, 1000);
+    scheduleReminder(note)
 }
 
 function scheduleReminder(note) {
@@ -180,52 +178,35 @@ function scheduleReminder(note) {
         setTimeout(() => {
             sendReminder(note);
         }, delay);
-        fetch("/reminders", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `id=${note.id}&markExpired=false`
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                console.log(data)
-            } 
-            else {
-            }
-        })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-        });
     } else {
-        fetch("/reminders", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `id=${note.id}&markExpired=true`
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-            } 
-            else {
-            }
-        })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-        });
+        if(note.expired == 0){
+            fetch("/reminders", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `id=${note.id}&markExpired=true`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    console.log(data)
+                } 
+                else {
+                    console.log(data)
+                }
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+
+            setTimeout(() => readReminders(), 500)
+        }
     }
 }
 
