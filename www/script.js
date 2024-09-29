@@ -326,7 +326,12 @@ function readNote(searchData = "") {
 
         if (data.length === 0) {
             const newTextNoNotes = document.createElement("h3");
-            newTextNoNotes.textContent = url !== "index.php" ? "Таких заметок нету. Но вы можете их сделать" : "Заметок нету. Но вы можете их сделать";
+            if(searchData){
+                newTextNoNotes.textContent = "Таких заметок нету. Но вы можете их сделать";
+            }
+            else{
+                newTextNoNotes.textContent = "Заметок нету. Но вы можете их сделать";
+            }
             newTextNoNotes.classList.add("textNoNotes");
             noteList.appendChild(newTextNoNotes);
             return;
