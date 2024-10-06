@@ -1,5 +1,4 @@
 <?php
-
 namespace Repository;
 
 Use Entities\Database;
@@ -38,9 +37,9 @@ class UserRepository implements UserRepositoryInterface{
 
                 $userId = $this->pdo->lastInsertId();
                 setcookie("user_id", $userId, time() + 3600 * 24 * 30, "/"); 
-                $_SESSION['user_id'] = $userId;
+                setcookie("auth_user_id", $userId, time() + 7200, "/");
                 setcookie("register", 'true', time() + 3600 * 24 * 30, "/");
-                $_SESSION['just_register'] = $user->getUsername();
+                setcookie('just_register', $user->getUsername(), time() + 7200, '/'); 
 
                 return true;
             } 
@@ -60,14 +59,14 @@ class UserRepository implements UserRepositoryInterface{
             $stmt->bindParam(1, $username, \PDO::PARAM_STR);
             $stmt->execute();
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            
+
             if (count($result) > 0) {
                 foreach($result as $row) {
                 if (password_verify($user->getPassword(), $row["password"])) {
                     $userId = $row['id'];
                     setcookie("user_id", $userId, time() + 3600 * 24 * 30, "/");
-                    $_SESSION['user_id'] = $userId;
-                    $_SESSION["login"] = $user->getUsername();
+                    setcookie("auth_user_id", $userId, time() + 7200, "/");
+                    setcookie("login", $user->getUsername(), time() + 7200, "/");
                     setcookie("register", 'true', time() + 3600 * 24 * 30, "/");
                 } else {
                     $warning = "Неверный логин или пароль";

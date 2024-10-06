@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers;
+namespace MiddleWares;
 
 class AuthMiddleware {
     public function handle($request, callable $next) {
@@ -10,7 +10,7 @@ class AuthMiddleware {
             exit; 
         }
         
-        if(!isset($_SESSION['user_id'])){
+        if(!isset($_COOKIE['auth_user_id'])){
                 $_SESSION['auth_error'] = 'Пожалуйста, войдите в систему.';
                 header("Location: /auth");
                 exit; 

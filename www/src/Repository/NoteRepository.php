@@ -30,7 +30,7 @@ class NoteRepository implements NoteRepositoryInterface{
                 $abstractNote->getContent(),
                 date('Y-m-d H:i:s'),
                 $reminderTime instanceof \DateTime ? $reminderTime->format('Y-m-d H:i:s') : $reminderTime,
-                $_SESSION['user_id']
+                $_COOKIE['auth_user_id']
             );
             if ($stmt->execute($params)) {
                 $response = array(
@@ -61,7 +61,7 @@ class NoteRepository implements NoteRepositoryInterface{
 
                 $stmt = $this->pdo->prepare($query);
                 $idParam = $note->getId() ;
-                $userIdParams = $_SESSION['user_id'];
+                $userIdParams = $_COOKIE['auth_user_id'];
 
                 $stmt->bindParam(':id', $idParam, \PDO::PARAM_INT);
                 $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
@@ -72,7 +72,7 @@ class NoteRepository implements NoteRepositoryInterface{
                 $stmt = $this->pdo->prepare($query);
     
                 $searchParam = "%{$note->getSearch()}%";
-                $userIdParams = $_SESSION['user_id'];
+                $userIdParams = $_COOKIE['auth_user_id'];
 
                 $stmt->bindParam(':search', $searchParam, \PDO::PARAM_STR);
                 $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
@@ -81,7 +81,7 @@ class NoteRepository implements NoteRepositoryInterface{
                 $query = "SELECT * FROM note WHERE reminder_time IS NULL AND user_id = :user_id";
                 $stmt = $this->pdo->prepare($query);
 
-                $userIdParams = $_SESSION['user_id'];
+                $userIdParams = $_COOKIE['auth_user_id'];
                 $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
             }
 
@@ -104,7 +104,7 @@ class NoteRepository implements NoteRepositoryInterface{
 
                 $stmt = $this->pdo->prepare($query);
                 $idParam = $reminder->getId() ;
-                $userIdParams = $_SESSION['user_id'];
+                $userIdParams = $_COOKIE['auth_user_id'];
 
                 $stmt->bindParam(':id', $idParam, \PDO::PARAM_INT);
                 $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
@@ -115,7 +115,7 @@ class NoteRepository implements NoteRepositoryInterface{
                 $stmt = $this->pdo->prepare($query);
     
                 $searchParam = "%{$reminder->getSearch()}%";
-                $userIdParams = $_SESSION['user_id'];
+                $userIdParams = $_COOKIE['auth_user_id'];
                 
                 $stmt->bindParam(':search', $searchParam, \PDO::PARAM_STR);
                 $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
@@ -124,7 +124,7 @@ class NoteRepository implements NoteRepositoryInterface{
                 $query = "SELECT * FROM note WHERE reminder_time IS NOT NULL AND user_id = :user_id";
                 $stmt = $this->pdo->prepare($query);
 
-                $userIdParams = $_SESSION['user_id'];
+                $userIdParams = $_COOKIE['auth_user_id'];
                 $stmt->bindParam(':user_id', $userIdParams, \PDO::PARAM_INT);
             }
 

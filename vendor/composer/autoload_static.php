@@ -13,6 +13,10 @@ class ComposerStaticInite5ef51bcb05daf6379c7c57b25dc7ead
     );
 
     public static $prefixLengthsPsr4 = array (
+        'V' => 
+        array (
+            'Views\\' => 6,
+        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Php80\\' => 23,
@@ -27,6 +31,10 @@ class ComposerStaticInite5ef51bcb05daf6379c7c57b25dc7ead
         array (
             'Phroute\\Phroute\\' => 16,
             'PhpOption\\' => 10,
+        ),
+        'M' => 
+        array (
+            'MiddleWares\\' => 12,
         ),
         'G' => 
         array (
@@ -51,6 +59,10 @@ class ComposerStaticInite5ef51bcb05daf6379c7c57b25dc7ead
     );
 
     public static $prefixDirsPsr4 = array (
+        'Views\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/www/src/Views',
+        ),
         'Symfony\\Polyfill\\Php80\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-php80',
@@ -74,6 +86,10 @@ class ComposerStaticInite5ef51bcb05daf6379c7c57b25dc7ead
         'PhpOption\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
+        ),
+        'MiddleWares\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/www/src/MiddleWares',
         ),
         'GrahamCampbell\\ResultType\\' => 
         array (

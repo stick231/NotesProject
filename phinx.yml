@@ -1,0 +1,15 @@
+# paths:
+#     migrations: "D:/Git/NotesProject-1/www/src/database/migrations"
+#     seeds: "D:/Git/NotesProject-1/www/src/database/seeds"
+
+# environments:
+#     default_migration_table: phinxlog
+#     default_environment: development
+#     development:
+#         adapter: mysql
+#         host: localhost
+#         name: dbtest
+#         user: user
+#         pass: "1234"
+#         port: 3306
+#         charset: utf8

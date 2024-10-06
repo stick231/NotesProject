@@ -2,6 +2,10 @@
 
 namespace Controllers;
 
+use Entities\User;
+use Entities\Database;
+use Repository\UserRepository;
+
 class AuthController {
     public function logoutAndClear() {
         $_SESSION = array();
@@ -28,16 +32,16 @@ class AuthController {
 
     public function checkUser() {
         if (isset($_COOKIE['user_id'])) { 
-            if(isset($_SESSION['just_register'])){
-                echo json_encode(["register" => true, "authentication" => true, "login" => $_SESSION['just_register']]);
+            if(isset($_COOKIE['just_register'])){
+                echo json_encode(["register" => true, "authentication" => true, "login" => $_COOKIE['just_register']]);
                 exit;
             }
-            if(isset($_SESSION['login'])){
-                echo json_encode(["register" => true, "authentication" => true, "login" => $_SESSION['login']]);
+            if(isset($_COOKIE['login'])){
+                echo json_encode(["register" => true, "authentication" => true, "login" => $_COOKIE['login']]);
                 exit;
             }
-            elseif(!isset($_SESSION['user_id'])){
-                echo json_encode(['register' => true, 'authentication' => false]);
+            elseif(!isset($_COOKIE['auth_user_id'])){
+                echo json_encode(['register' => true, 'authentication' => false, 'login' => $_COOKIE['login']]);
                 exit;
             } 
         }
@@ -45,8 +49,59 @@ class AuthController {
             echo json_encode(['register' => false, 'authentication' => false]);
             exit;
         }
-        exit;
     }
+
+    public function authenticate()
+    {
+        if (isset($_POST["login"]) && isset($_POST["password"])) {
+            $database = new Database();
+            $login = $_POST["login"];
+            $password = $_POST["password"];
+        
+            $user = (new User())
+                ->setUsername($login)
+                ->setPassword($password);
+        
+            $userRepository = new UserRepository($database);
+        
+            if (!is_string($userRepository->authenticate($user))) {
+                $this->redirectToHomePage();
+            } else {
+                $response = $userRepository->authenticate($user);
+                setcookie("auth_error", $response, time() + 1800, "/");
+                
+    
+                header("Location: /auth");
+                exit; 
+            }
+        }
+    }
+
+    public function register()
+    {
+        if (isset($_POST["username"]) && isset($_POST["password"])) {
+            $database = new Database();
+
+            $username = $_POST["username"];
+            $password = $_POST["password"];
+            
+            $user = (new User())
+                ->setUsername($username)
+                ->setPassword($password);
+            
+            $userRepository = new UserRepository($database);
+            
+            if ($userRepository->register($user)) {
+                $this->redirectToHomePage();
+            } else {
+                $response = "Такой пользователь уже есть!";
+                setcookie("register_error", $response, time() + 1800, "/");
+                header("Location: /register"); 
+                exit; 
+            }
+        }
+    }
+
     public function redirectToAuth()
     {
         include 'auth.php';
