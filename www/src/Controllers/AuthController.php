@@ -107,10 +107,14 @@ class AuthController {
         include 'auth.php';
         exit;
     }
-
     public function redirectToRegister()
     {
         include 'register.php';
+        exit;
+    }
+    public function redirectToMigration()
+    {
+        include 'migration.php';
         exit;
     }
     public function redirectToHomePage()

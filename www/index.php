@@ -10,6 +10,8 @@ use Entities\Reminder;
 use Repository\NoteRepository;
 use Factory\NoteFactory;
 use MiddleWares\AuthMiddleware;
+use Repository\MigrationRepository;
+use Controllers\MigrationController;
 
 $router = new Phroute\Phroute\RouteCollector(); 
 
@@ -36,6 +38,10 @@ $router->any('/auth', function() use ($authController){
 
 $router->any('/register', function() use ($authController){
     $authController->redirectToRegister();
+});
+
+$router->any('/migration', function() use ($authController){
+    $authController->redirectToMigration();
 });
 
 $database = new Entities\Database();

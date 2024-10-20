@@ -1,0 +1,20 @@
+body{
+    margin: 0;
+    font-family: "Comfortaa", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    display: grid;
+    grid-template-areas: 
+        "header header"
+        "sidebar main"
+        "sidebar section";
+    grid-template-rows: auto auto 1fr;
+    grid-template-columns: auto 1fr;
+    height: 100vh;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+th, tr{
+    border: 2px solid black;
+}
