@@ -10,8 +10,13 @@ $migrationRepository = new MigrationRepository($database);
 $migrationController = new MigrationController($migrationRepository);
 
 if($_SERVER['REQUEST_METHOD'] === "POST"){
-    if(isset($_POST["data-migration"])){
-        echo $migrationController->actionUp($_POST['data-migration']);
+    if(isset($_POST["data-migration-up"])){
+        echo $migrationController->actionUp($_POST['data-migration-up']);
+        exit;
+    }
+    elseif(isset($_POST["data-migration-up"]))
+    {
+        echo $migrationController->actionDown($_POST['data-migration-down']);
         exit;
     }
 }

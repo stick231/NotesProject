@@ -1,6 +1,6 @@
 function fetchUp(id){
     const formData = new FormData();
-    formData.append("data-migration", id);
+    formData.append("data-migration-up", id);
 
     fetch('migration.php',{
             method : "POST",
@@ -24,7 +24,7 @@ function fetchUp(id){
 function fetchDown(id){
     fetch('/migration',{
             method : "POST",
-            body : JSON.stringify({'data-migration': id })  
+            body : JSON.stringify({'data-migration-down': id })  
         }
     )
     .then(response => {

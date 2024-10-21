@@ -51,7 +51,7 @@ class MigrationRepository {
         if (empty($migrationQuery)) {
             throw new \Exception("Запрос миграции не найден для ID: " . $migrationId);
         }
-    
+        
         $migrationQuery = $migrationQuery[0]['query'];
         
         // может быть его будущая обработка запроса перед prepare
@@ -63,7 +63,11 @@ class MigrationRepository {
         } catch (\PDOException $e) {
             echo json_encode(array("Ошибка: " => $e->getMessage()));
         }
+    }
 
+    public function actionDown()
+    {
+        
     }
 
     public function selectMigration()

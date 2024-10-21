@@ -19,4 +19,9 @@ class MigrationController{
     public function actionUp($migrationId){
         return $this->migrationRepository->actionUp($migrationId);
     }
+
+    public function actionDown($migrationId)
+    {
+        return $this->migrationRepository->actionDown($migrationId);
+    }
 }
