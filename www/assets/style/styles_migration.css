@@ -18,3 +18,7 @@ body{
 th, tr{
     border: 2px solid black;
 }
+
+table{
+    width: 100%;
+}

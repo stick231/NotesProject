@@ -1,14 +1,3 @@
-<?php
-use Controllers\MigrationController;
-use Repository\MigrationRepository;
-use Entities\Database;
-
-$database = new Database();
-$migrationRepository = new MigrationRepository($database);
-$migrationController = new MigrationController($migrationRepository);
-
-$migrationArr = $migrationController->selectMigration();
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +7,13 @@ $migrationArr = $migrationController->selectMigration();
     <title>Миграции</title>
 </head>
 <body>
+    <form id='formMigration' action="" method="post">
+        <label for="migration-up">Миграция</label>
+        <input type="text" name="migration-up" id="MigrationUp">
+        <label for="migration-down">Откат</label>
+        <input type="text" name="migration-down" id="MigrationDown">
+        <button type="submit" id="submitBut">Сохранить</button>
+    </form>
     <table>
         <thead>
             <tr>
@@ -27,22 +23,10 @@ $migrationArr = $migrationController->selectMigration();
                 <th>time_update</th>
                 <th>query</th>
                 <th>action</th>
+                <th>Manage</th>
             </tr>
         </thead>
-        <tbody>
-            <?php 
-                foreach ($migrationArr as $migration) {
-    echo  "<tr>
-            <th>". htmlspecialchars($migration['id']) . "</th>
-            <th>". htmlspecialchars($migration['status']) ."</th>
-            <th>". htmlspecialchars($migration['time']) ."</th>
-            <th>". htmlspecialchars($migration['time_update']) ."</th>
-            <th>". htmlspecialchars($migration['query']) . "</th>
-            ".  "<th><button class=button-up data-migration-id=$migration[id]>up</button><button class=button-down data-migration-id=$migration[id]>down</button></th>" . "
-           </tr>
-         "  ;
-                }
-            ?>
+        <tbody id="migrationTableBody">
         </tbody>
     </table>
     <script src="../../assets/js/scriptMigration.js"></script>

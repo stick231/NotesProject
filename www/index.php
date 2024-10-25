@@ -10,8 +10,6 @@ use Entities\Reminder;
 use Repository\NoteRepository;
 use Factory\NoteFactory;
 use MiddleWares\AuthMiddleware;
-use Repository\MigrationRepository;
-use Controllers\MigrationController;
 
 $router = new Phroute\Phroute\RouteCollector(); 
 
