@@ -191,8 +191,8 @@ class MigrationRepository {
             return json_encode(array('success' => true, 'message' => 'Миграция прошла успешно'));
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
-    
-            echo json_encode(array("Ошибка: " => $e->getMessage()));
+            error_log($e->getMessage(), 3, '/path/to/your/error.log'); // Логируем ошибку
+            return json_encode(array("success" => false, "message" => "Ошибка выполнения миграции: " . $e->getMessage()));
         }
     }
 
@@ -232,7 +232,8 @@ class MigrationRepository {
             return json_encode(array('success' => true, 'message' => 'Откат прошел успешно'));
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
-            echo json_encode(array("Ошибка: " => $e->getMessage()));
+            error_log($e->getMessage(), 3, '/path/to/your/error.log'); // Логируем ошибку
+            return json_encode(array("success" => false, "message" => "Ошибка выполнения миграции: " . $e->getMessage()));
         }
     }
     // страничка созданий миграций 

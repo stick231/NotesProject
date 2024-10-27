@@ -257,6 +257,7 @@ document.getElementById('submitBut').addEventListener('click', (event) => {
         if (checkInp()) {
             fetchCreateMigration();
             migrationId = null;
+            resetForm();
         }
     } else {
         if (checkInp()) {
