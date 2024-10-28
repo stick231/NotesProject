@@ -38,6 +38,10 @@ $router->any('/register', function() use ($authController){
     $authController->redirectToRegister();
 });
 
+$router->any('/migration', function() use ($authController){
+    $authController->redirectToMigration();
+});
+
 $database = new Entities\Database();
 $noteRepository = new NoteRepository($database);
 
